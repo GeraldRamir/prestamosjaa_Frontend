@@ -141,7 +141,7 @@ const handleInstallClick = async () => {
     e.preventDefault();
     const form = e.target;
   
-    if ([nombre, copiaCedula, Empresa, ClaveTarjeta, Banco, NumeroCuenta,ubicacion,nombreUbicacion, ValorPrestamo, Interes, FechaIngreso, FechaPago ].includes('')) {
+    if ([nombre, copiaCedula, Empresa, ClaveTarjeta, Banco, NumeroCuenta,nombreUbicacion, ValorPrestamo, Interes, FechaIngreso, FechaPago ].includes('')) {
       e.stopPropagation();
       setAlerta({
         msg: 'Todos los campos son obligatorios',
@@ -547,7 +547,7 @@ const handleInstallClick = async () => {
       Interes
     </label>
     <input
-      type="text"
+      type="number"
       className="form-control"
       style={{ borderRadius: "7px" }}
       id="validationCustom09"
@@ -644,7 +644,7 @@ const handleInstallClick = async () => {
         </label>
         <div className="input-group">
           <input
-            type={mostrarClave ? "text" : "password"}
+            type={mostrarClave ? "number" : "password"}
             className="form-control"
             style={{ borderRadius: "7px" }}
             id="validationCustom03"
