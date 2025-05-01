@@ -158,7 +158,21 @@ const handleInstallClick = async () => {
     
 
     
-    guardarCliente({ nombre, copiaCedula, Empresa, ClaveTarjeta, ubicacion, nombreUbicacion, NumeroCuenta, ValorPrestamo, Interes, FechaIngreso, FechaPago, Banco });
+    guardarCliente({
+      nombre,
+      copiaCedula: Number(copiaCedula),
+      Empresa,
+      ClaveTarjeta: Number(ClaveTarjeta),
+      Banco,
+      NumeroCuenta: Number(NumeroCuenta),
+      ValorPrestamo: Number(ValorPrestamo),
+      Interes: Number(Interes),
+      FechaIngreso,
+      FechaPago,
+      ubicacion,
+      nombreUbicacion
+    });
+    
   
     form.classList.add('was-validated');
   };
@@ -514,7 +528,7 @@ const handleInstallClick = async () => {
           >
   <div className="col-md-4">
     <label htmlFor="validationCustom01" className="form-label card-title text-dark">
-      Nombre y apellido
+      Nombre y apellidos
     </label>
     <input
       type="text"
