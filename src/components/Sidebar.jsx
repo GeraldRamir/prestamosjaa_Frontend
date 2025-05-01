@@ -40,8 +40,9 @@ const Sidebar = () => {
   const [copiaCedula, setcopiaCedula] = useState('');
   const [Empresa, setEmpresa] = useState('');
   const [ClaveTarjeta, setClaveTarjeta] = useState('');
-  // const [FechaIngreso, setFechaIngreso] = useState('');
-  // const [FechaPago, setFechaPago] = useState('');
+  const [FechaIngreso, setFechaIngreso] = useState('');
+  const [FechaPago, setFechaPago] = useState('');
+  const [telefono, setTelefono] = useState('');
   const [Banco, setBanco] = useState('');
   const [NumeroCuenta, setNumeroCuenta] = useState('');
   const [ValorPrestamo, setValorPrestamo] = useState('');
@@ -141,7 +142,7 @@ const handleInstallClick = async () => {
     e.preventDefault();
     const form = e.target;
   
-    if ([nombre, copiaCedula, Empresa, ClaveTarjeta, Banco, NumeroCuenta, nombreUbicacion, ValorPrestamo, Interes, ubicacion].some(campo => campo === '' || campo === null || campo === undefined)) {
+    if ([nombre, copiaCedula, Empresa, ClaveTarjeta, Banco, NumeroCuenta, nombreUbicacion, ValorPrestamo, Interes, ubicacion, FechaIngreso, FechaPago, telefono].some(campo => campo === '' || campo === null || campo === undefined)) {
 
       e.stopPropagation();
       setAlerta({
@@ -169,7 +170,10 @@ const handleInstallClick = async () => {
       ValorPrestamo: Number(ValorPrestamo),
       Interes: Number(Interes),
       nombreUbicacion,
-      ubicacion
+      ubicacion,
+      FechaIngreso,
+      FechaPago,
+      telefono
     });
     
   
@@ -541,6 +545,22 @@ const handleInstallClick = async () => {
     <div className="valid-feedback text-primary">Campo validado!</div>
   </div>
   <div className="col-md-4">
+    <label htmlFor="validationCustom012" className="form-label card-title text-dark">
+      Telefono
+    </label>
+    <input
+      type="number"
+      className="form-control"
+      style={{ borderRadius: "7px" }}
+      id="validationCustom012"
+      required
+      value={telefono}
+      onChange={e=> setTelefono(e.target.value)}
+    />
+    <div className="valid-feedback text-primary">Campo validado!</div>
+  </div>
+
+  <div className="col-md-4">
     <label htmlFor="validationCustom02" className="form-label card-title text-dark">
       Copia de Cédula
     </label>
@@ -675,7 +695,7 @@ const handleInstallClick = async () => {
         </div>
         <div className="invalid-feedback">Por favor, ingrese una clave válida.</div>
       </div>
-  {/* <div className="col-md-3">
+  <div className="col-md-3">
     <label htmlFor="validationCustom04" className="form-label card-title text-dark">
       Fecha de Ingreso
     </label>
@@ -686,7 +706,7 @@ const handleInstallClick = async () => {
       id="validationCustom04"
       required
       value={FechaIngreso}
-      onChange={e=> setFechaIngreso(e.target.value)}
+      onChange={e=> setFechaIngreso(e.target.value ? e.target.value: "Fecha supuesta a estar")}
     />
     <div className="invalid-feedback">Por favor, seleccione una fecha válida.</div>
   </div>
@@ -704,7 +724,7 @@ const handleInstallClick = async () => {
       onChange={e=> setFechaPago(e.target.value? e.target.value: "Fecha supuesta a estar")}
     />
     <div className="invalid-feedback">Por favor, seleccione una fecha válida.</div>
-  </div> */}
+  </div>
   <div className="col-md-3">
     <label htmlFor="validationCustom05" className="form-label card-title text-dark">
       Banco
