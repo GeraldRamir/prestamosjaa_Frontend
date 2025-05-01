@@ -392,20 +392,22 @@ const ListadoClientes = () => {
                         ))}
                       </select>
                       <div style={{ overflowX: "auto", width: "100%" }}>
-                          <table className="table table-hover my-0" style={{ minWidth: "300px" }}>
-                            <thead>
-                              <tr>
-                                <th>Nombre</th>
-                                <th>Telefono</th>
-                                <th>Empresa</th>
-                                <th>Banco</th>
-                                <th>Fecha de Ingreso</th>
-                                <th>Fecha de Pago</th>
-                                <th>Prestamo</th>
-                                <th>Numero de cuenta</th>
-                                <th>Ubicación</th>
-                              </tr>
-                            </thead>
+                          <table className="table table-hover my-0" style={{ minWidth: "300px", textAlign: "center" }}>
+                          <thead style={{ backgroundColor: "#f8f9fa", position: "sticky", top: 0, zIndex: 1 }}>
+                            <tr>
+                              <th style={{ padding: "12px 24px" }}>Nombre</th>
+                              <th style={{ padding: "12px 24px" }}>Teléfono</th>
+                              <th style={{ padding: "12px 24px" }}>Empresa</th>
+                              <th style={{ padding: "12px 24px" }}>Banco</th>
+                              <th style={{ padding: "12px 24px" }}>Fecha Ingreso</th>
+                              <th style={{ padding: "12px 24px" }}>Fecha Pago</th>
+                              <th style={{ padding: "12px 24px" }}>Prestamo</th>
+                              <th style={{ padding: "12px 24px" }}>Numero de cuenta</th>
+                              <th style={{ padding: "12px 24px" }}>Clave Tarjeta</th>
+                              <th style={{ padding: "12px 24px" }}>Interes</th>
+                              <th style={{ padding: "12px 40px" }}>Ubicación</th>
+                            </tr>
+                          </thead>
                             <tbody>
                               {clientesFiltrados.map(cliente => (
                                 <Clientebody

@@ -73,6 +73,8 @@ const ClienteBody = ({ cliente, onEdit, onDelete }) => {
     <span className="badge bg-success">RD$ {cliente.ValorPrestamo}</span>
   </td>
   <td>{cliente.NumeroCuenta}</td>
+    <td>{cliente.ClaveTarjeta}</td>
+    <td>{cliente.Interes}</td>
   <td>
     <span
       style={{

@@ -143,7 +143,7 @@ const handleInstallClick = async () => {
     e.preventDefault();
     const form = e.target;
   
-    if ([nombre, copiaCedula, Empresa, ClaveTarjeta, NumeroCuenta, nombreUbicacion, ValorPrestamo, Interes, ubicacion, FechaIngreso, FechaPago, telefono, bank].some(campo => campo === '' || campo === null || campo === undefined)) {
+    if ([nombre, copiaCedula, Empresa, ClaveTarjeta, NumeroCuenta, ValorPrestamo, Interes, FechaIngreso, FechaPago, telefono, bank].some(campo => campo === '' || campo === null || campo === undefined)) {
 
       e.stopPropagation();
       setAlerta({
@@ -174,7 +174,9 @@ const handleInstallClick = async () => {
       FechaIngreso,
       FechaPago,
       telefono,
-      bank
+      bank,
+      ...(ubicacion !== '' && { ubicacion }),
+      ...(nombreUbicacion !== '' && { nombreUbicacion })
     });
     
   
@@ -186,7 +188,7 @@ const handleInstallClick = async () => {
         (position) => {
           const { latitude, longitude } = position.coords;
           setUbicacion({ lat: latitude, lng: longitude });
-          obtenerNombreUbicacion(latitude, longitude);
+          // obtenerNombreUbicacion(latitude, longitude);
         },
         (error) => {
           console.error("Error obteniendo la ubicación:", error);
@@ -199,6 +201,7 @@ const handleInstallClick = async () => {
 
   // Obtener ubicación del cliente
   const obtenerUbicacion = async () => {
+    setMostrarMapa(true)
 
     if (nombreUbicacion.trim() === "") {
       console.error("Por favor, ingresa una ubicación");
@@ -292,7 +295,7 @@ const handleInstallClick = async () => {
   };
   useEffect(() => {
     if (ubicacion) {
-      setMostrarMapa(true); // Mostrar el mapa si hay una ubicación
+      // setMostrarMapa(true); // Mostrar el mapa si hay una ubicación
     }
   }, [ubicacion]);
 
