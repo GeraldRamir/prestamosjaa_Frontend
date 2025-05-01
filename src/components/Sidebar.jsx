@@ -137,7 +137,7 @@ const handleInstallClick = async () => {
       setFilteredClients(results);
   };
   
-  const handleSubmit = async (e) => {
+  const handleSubmit =  (e) => {
     e.preventDefault();
     const form = e.target;
   
@@ -159,7 +159,7 @@ const handleInstallClick = async () => {
     
 
     
-    await guardarCliente({
+     guardarCliente({
       nombre,
       copiaCedula: Number(copiaCedula),
       Empresa,
