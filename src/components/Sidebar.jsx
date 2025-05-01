@@ -143,7 +143,7 @@ const handleInstallClick = async () => {
     e.preventDefault();
     const form = e.target;
   
-    if ([nombre, copiaCedula, Empresa, ClaveTarjeta, Banco, NumeroCuenta, nombreUbicacion, ValorPrestamo, Interes, ubicacion, FechaIngreso, FechaPago, telefono].some(campo => campo === '' || campo === null || campo === undefined)) {
+    if ([nombre, copiaCedula, Empresa, ClaveTarjeta, Banco, NumeroCuenta, nombreUbicacion, ValorPrestamo, Interes, ubicacion, FechaIngreso, FechaPago, telefono, bank].some(campo => campo === '' || campo === null || campo === undefined)) {
 
       e.stopPropagation();
       setAlerta({
@@ -174,7 +174,8 @@ const handleInstallClick = async () => {
       ubicacion,
       FechaIngreso,
       FechaPago,
-      telefono
+      telefono,
+      bank
     });
     
   
