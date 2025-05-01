@@ -27,8 +27,8 @@ const ModalEditarCliente = ({ cliente, cerrarModal }) => {
         cerrarModal();
     };
 
-    const FechaPagoModificada = formData.FechaPago ? formData.FechaPago.slice(0, 10) : '';
-    const FechaIngresoModificada = formData.FechaIngreso ? formData.FechaIngreso.slice(0, 10) : '';
+    // const FechaPagoModificada = formData.FechaPago ? formData.FechaPago.slice(0, 10) : '';
+    // const FechaIngresoModificada = formData.FechaIngreso ? formData.FechaIngreso.slice(0, 10) : '';
     
 
     return (
@@ -133,7 +133,7 @@ const ModalEditarCliente = ({ cliente, cerrarModal }) => {
                                     type="date"
                                     className="form-control rounded-3 border-light shadow-sm"
                                     name="FechaIngreso"
-                                    value={FechaIngresoModificada}
+                                    value={formData.FechaIngreso}
                                     onChange={handleChange}
                                     required
                                     style={{ paddingLeft: "25px" }}
@@ -148,7 +148,7 @@ const ModalEditarCliente = ({ cliente, cerrarModal }) => {
                                     type="date"
                                     className="form-control rounded-3 border-light shadow-sm"
                                     name="FechaPago"
-                                    value={FechaPagoModificada}
+                                    value={formData.FechaPago}
                                     onChange={handleChange}
                                     required
                                     style={{ paddingLeft: "25px" }}

@@ -64,14 +64,14 @@ const ClienteBody = ({ cliente, onEdit, onDelete }) => {
   <td onClick={handleOpenModal} style={{ cursor: "pointer" }}>
     {cliente.nombre}
   </td>
-  <td>{cliente.telefono}</td>
+  <td>{cliente.Banco}</td>
   <td>{cliente.Empresa}</td>
   <td style={{whiteSpace: "nowrap"}}>{cliente.FechaIngreso}</td>
   <td style={{whiteSpace: "nowrap"}}>{cliente.FechaPago}</td>
   <td>
     <span className="badge bg-success">RD$ {cliente.ValorPrestamo}</span>
   </td>
-  <td className="d-none d-md-table-cell">{cliente.NumeroCuenta}</td>
+  <td>{cliente.NumeroCuenta}</td>
   <td>
     <span
       style={{

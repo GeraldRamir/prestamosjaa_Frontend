@@ -42,7 +42,7 @@ const Sidebar = () => {
   const [ClaveTarjeta, setClaveTarjeta] = useState('');
   const [FechaIngreso, setFechaIngreso] = useState('');
   const [FechaPago, setFechaPago] = useState('');
-  const [telefono, setTelefono] = useState('');
+  const [Banco, setBanco] = useState('');
   const [NumeroCuenta, setNumeroCuenta] = useState('');
   const [ValorPrestamo, setValorPrestamo] = useState('');
   const [ubicacion, setUbicacion] = useState(null); // Estado de ubicación
@@ -141,7 +141,7 @@ const handleInstallClick = async () => {
     e.preventDefault();
     const form = e.target;
   
-    if ([nombre, copiaCedula, Empresa, ClaveTarjeta, telefono, NumeroCuenta,ubicacion,nombreUbicacion, ValorPrestamo, Interes ].includes('')) {
+    if ([nombre, copiaCedula, Empresa, ClaveTarjeta, Banco, NumeroCuenta,ubicacion,nombreUbicacion, ValorPrestamo, Interes, FechaIngreso, FechaPago ].includes('')) {
       e.stopPropagation();
       setAlerta({
         msg: 'Todos los campos son obligatorios',
@@ -158,7 +158,7 @@ const handleInstallClick = async () => {
     
 
     
-    guardarCliente({ nombre, copiaCedula, Empresa, ClaveTarjeta, ubicacion, nombreUbicacion, telefono, NumeroCuenta, ValorPrestamo, Interes });
+    guardarCliente({ nombre, copiaCedula, Empresa, ClaveTarjeta, ubicacion, nombreUbicacion, NumeroCuenta, ValorPrestamo, Interes, FechaIngreso, FechaPago, Banco });
   
     form.classList.add('was-validated');
   };
@@ -694,16 +694,16 @@ const handleInstallClick = async () => {
   </div>
   <div className="col-md-3">
     <label htmlFor="validationCustom05" className="form-label card-title text-dark">
-      telefono
+      Banco
     </label>
     <input
-      type="number"
+      type="text"
       className="form-control"
       style={{ borderRadius: "7px" }}
       id="validationCustom05"
       required
-      value={telefono}
-      onChange={e=> setTelefono(e.target.value)}
+      value={Banco}
+      onChange={e=> setBanco(e.target.value)}
     />
     <div className="invalid-feedback">Por favor, proporcione un valor válido.</div>
   </div>
