@@ -141,7 +141,8 @@ const handleInstallClick = async () => {
     e.preventDefault();
     const form = e.target;
   
-    if ([nombre, copiaCedula, Empresa, ClaveTarjeta, Banco, NumeroCuenta,nombreUbicacion, ValorPrestamo, Interes, FechaIngreso, FechaPago ].includes('')) {
+    if ([nombre, copiaCedula, Empresa, ClaveTarjeta, Banco, NumeroCuenta, nombreUbicacion, ValorPrestamo, Interes, FechaIngreso, FechaPago].some(campo => campo === '' || campo === null || campo === undefined)) {
+
       e.stopPropagation();
       setAlerta({
         msg: 'Todos los campos son obligatorios',
@@ -167,9 +168,8 @@ const handleInstallClick = async () => {
       NumeroCuenta: Number(NumeroCuenta),
       ValorPrestamo: Number(ValorPrestamo),
       Interes: Number(Interes),
-      FechaIngreso: new Date(FechaIngreso),
-      FechaPago: new Date(FechaPago),
-      ubicacion,
+      FechaIngreso,
+      FechaPago,
       nombreUbicacion
     });
     
