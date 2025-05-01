@@ -40,8 +40,8 @@ const Sidebar = () => {
   const [copiaCedula, setcopiaCedula] = useState('');
   const [Empresa, setEmpresa] = useState('');
   const [ClaveTarjeta, setClaveTarjeta] = useState('');
-  const [FechaIngreso, setFechaIngreso] = useState('');
-  const [FechaPago, setFechaPago] = useState('');
+  // const [FechaIngreso, setFechaIngreso] = useState('');
+  // const [FechaPago, setFechaPago] = useState('');
   const [Banco, setBanco] = useState('');
   const [NumeroCuenta, setNumeroCuenta] = useState('');
   const [ValorPrestamo, setValorPrestamo] = useState('');
@@ -141,7 +141,7 @@ const handleInstallClick = async () => {
     e.preventDefault();
     const form = e.target;
   
-    if ([nombre, copiaCedula, Empresa, ClaveTarjeta, Banco, NumeroCuenta, nombreUbicacion, ValorPrestamo, Interes, FechaIngreso, FechaPago, ubicacion].some(campo => campo === '' || campo === null || campo === undefined)) {
+    if ([nombre, copiaCedula, Empresa, ClaveTarjeta, Banco, NumeroCuenta, nombreUbicacion, ValorPrestamo, Interes, ubicacion].some(campo => campo === '' || campo === null || campo === undefined)) {
 
       e.stopPropagation();
       setAlerta({
@@ -168,8 +168,6 @@ const handleInstallClick = async () => {
       NumeroCuenta: Number(NumeroCuenta),
       ValorPrestamo: Number(ValorPrestamo),
       Interes: Number(Interes),
-      FechaIngreso,
-      FechaPago,
       nombreUbicacion,
       ubicacion
     });
@@ -677,7 +675,7 @@ const handleInstallClick = async () => {
         </div>
         <div className="invalid-feedback">Por favor, ingrese una clave válida.</div>
       </div>
-  <div className="col-md-3">
+  {/* <div className="col-md-3">
     <label htmlFor="validationCustom04" className="form-label card-title text-dark">
       Fecha de Ingreso
     </label>
@@ -706,7 +704,7 @@ const handleInstallClick = async () => {
       onChange={e=> setFechaPago(e.target.value? e.target.value: "Fecha supuesta a estar")}
     />
     <div className="invalid-feedback">Por favor, seleccione una fecha válida.</div>
-  </div>
+  </div> */}
   <div className="col-md-3">
     <label htmlFor="validationCustom05" className="form-label card-title text-dark">
       Banco
