@@ -543,7 +543,7 @@ const handleInstallClick = async () => {
   </div>
   <div className="col-md-4">
     <label htmlFor="validationCustom02" className="form-label card-title text-dark">
-      Copia Cédula
+      Copia de Cédula
     </label>
     <input
       type="text"
