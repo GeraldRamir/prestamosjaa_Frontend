@@ -44,6 +44,7 @@ const Sidebar = () => {
   const [FechaPago, setFechaPago] = useState('');
   const [telefono, setTelefono] = useState('');
   const [Banco, setBanco] = useState('');
+  const [bank, setBank] = useState('');
   const [NumeroCuenta, setNumeroCuenta] = useState('');
   const [ValorPrestamo, setValorPrestamo] = useState('');
   const [ubicacion, setUbicacion] = useState(null); // Estado de ubicación
@@ -735,8 +736,8 @@ const handleInstallClick = async () => {
       style={{ borderRadius: "7px" }}
       id="validationCustom05"
       required
-      value={Banco}
-      onChange={e=> setBanco(e.target.value)}
+      value={bank}
+      onChange={e=> setBank(e.target.value)}
     />
     <div className="invalid-feedback">Por favor, proporcione un valor válido.</div>
   </div>

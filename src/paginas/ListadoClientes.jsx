@@ -396,8 +396,9 @@ const ListadoClientes = () => {
                             <thead>
                               <tr>
                                 <th>Nombre</th>
-                                <th>Banco</th>
+                                <th>Telefono</th>
                                 <th>Empresa</th>
+                                <th>Banco</th>
                                 <th>Fecha de Ingreso</th>
                                 <th>Fecha de Pago</th>
                                 <th>Prestamo</th>
