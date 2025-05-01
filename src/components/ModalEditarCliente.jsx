@@ -94,15 +94,16 @@ const ModalEditarCliente = ({ cliente, cerrarModal }) => {
                                 />
                             </div>
                         </div>
+         
                         <div className="mb-3">
-                            <label className="form-label text-muted">Banco</label>
+                            <label className="form-label text-muted">Telefono</label>
                             <div className="d-flex align-items-center">
                                <i data-feather="briefcase" className="me-2"   style={{ color: "#ff6f00", marginRight: "10px" }}></i>
                                 <input
                                     type="text"
                                     className="form-control rounded-3 border-light shadow-sm"
                                     name="Banco"
-                                    value={formData.Banco}
+                                    value={formData.telefono}
                                     onChange={handleChange}
                                     required
                                     style={{ paddingLeft: "25px" }}
@@ -118,6 +119,21 @@ const ModalEditarCliente = ({ cliente, cerrarModal }) => {
                                     className="form-control rounded-3 border-light shadow-sm"
                                     name="Empresa"
                                     value={formData.Empresa}
+                                    onChange={handleChange}
+                                    required
+                                    style={{ paddingLeft: "25px" }}
+                                />
+                            </div>
+                        </div>
+                        <div className="mb-3">
+                            <label className="form-label text-muted">Banco</label>
+                            <div className="d-flex align-items-center">
+                               <i data-feather="briefcase" className="me-2"   style={{ color: "#ff6f00", marginRight: "10px" }}></i>
+                                <input
+                                    type="text"
+                                    className="form-control rounded-3 border-light shadow-sm"
+                                    name="Banco"
+                                    value={formData.Banco}
                                     onChange={handleChange}
                                     required
                                     style={{ paddingLeft: "25px" }}
@@ -164,6 +180,21 @@ const ModalEditarCliente = ({ cliente, cerrarModal }) => {
                                     className="form-control rounded-3 border-light shadow-sm"
                                     name="NumeroCuenta"
                                     value={formData.NumeroCuenta}
+                                    onChange={handleChange}
+                                    required
+                                    style={{ paddingLeft: "25px" }}
+                                />
+                            </div>
+                        </div>
+                        <div className="mb-3">
+                            <label className="form-label text-muted">Clave de tarjeta</label>
+                            <div className="d-flex align-items-center">
+                               <i data-feather="minus-square" className="me-2"   style={{ color: "#ff6f00", marginRight: "10px" }}></i>
+                                <input
+                                    type="number"
+                                    className="form-control rounded-3 border-light shadow-sm"
+                                    name="NumeroCuenta"
+                                    value={formData.ClaveTarjeta}
                                     onChange={handleChange}
                                     required
                                     style={{ paddingLeft: "25px" }}
