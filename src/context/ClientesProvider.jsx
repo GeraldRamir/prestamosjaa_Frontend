@@ -50,6 +50,9 @@ export const ClientesProvider = ({ children }) => {
   // Función para guardar un nuevo cliente
   const guardarCliente = async (cliente) => {
         try {
+
+            console.log("Cliente a guardar:", cliente); // Verifica el cliente que se va a guardar
+            
             const token = localStorage.getItem('token');
             const config = {
                 headers: {
@@ -59,6 +62,8 @@ export const ClientesProvider = ({ children }) => {
             };
             const { data } = await clienteAxios.post('/clientes', cliente, config);
             setClientes(prevClientes => [...prevClientes, data]);
+
+            console.log("Cliente guardado:", data);
 
             // Luego de guardar el cliente, obtenemos los pagos
             if (data._id) {

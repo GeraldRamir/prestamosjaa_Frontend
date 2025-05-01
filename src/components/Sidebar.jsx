@@ -137,7 +137,7 @@ const handleInstallClick = async () => {
       setFilteredClients(results);
   };
   
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const form = e.target;
   
@@ -158,7 +158,7 @@ const handleInstallClick = async () => {
     
 
     
-    guardarCliente({
+    await guardarCliente({
       nombre,
       copiaCedula: Number(copiaCedula),
       Empresa,
@@ -167,8 +167,8 @@ const handleInstallClick = async () => {
       NumeroCuenta: Number(NumeroCuenta),
       ValorPrestamo: Number(ValorPrestamo),
       Interes: Number(Interes),
-      FechaIngreso,
-      FechaPago,
+      FechaIngreso: new Date(FechaIngreso),
+      FechaPago: new Date(FechaPago),
       ubicacion,
       nombreUbicacion
     });
@@ -528,7 +528,7 @@ const handleInstallClick = async () => {
           >
   <div className="col-md-4">
     <label htmlFor="validationCustom01" className="form-label card-title text-dark">
-      Nombres y apellidos
+      Nombre y apellido
     </label>
     <input
       type="text"
