@@ -168,7 +168,7 @@ const handleInstallClick = async () => {
       ClaveTarjeta: Number(ClaveTarjeta),
       NumeroCuenta: Number(NumeroCuenta),
       ValorPrestamo: Number(ValorPrestamo),
-      Interes: Number(Interes),
+      Interes: (Number(Interes) / 100) * Number(ValorPrestamo),
       nombreUbicacion,
       ubicacion,
       FechaIngreso,

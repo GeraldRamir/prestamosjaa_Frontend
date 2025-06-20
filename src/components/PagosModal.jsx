@@ -8,18 +8,38 @@ import "handsontable/dist/handsontable.full.css";
 import Alerta from "./Alerta";
 
 const PagosModal = ({ isOpen, onClose, clienteId }) => {
-  const { obtenerPagos, crearPago, editarPago } = useContext(PagosContext);
+  const { obtenerPagos, crearPago, editarPago, eliminarPago } = useContext(PagosContext);
   const [pagosEditable, setPagosEditable] = useState([]);
   const [valorPrestamo, setValorPrestamo] = useState(0);
   const [interes, setInteres] = useState(0);
   const [guardando, setGuardando] = useState(false);
     const [alerta, setAlerta] = useState({});
+      const [filaSeleccionada, setFilaSeleccionada] = useState(null);
+      const [pagosEliminados, setPagosEliminados] = useState([]);
+
 
   // const [Interes, setInteres] = useState(0);
-  const handleDeleteRow = (index) => {
-    setPagosEditable((prevPagos) => prevPagos.filter((_, i) => i !== index));
-  };
-  
+const handleDeleteRow = () => {
+  if (filaSeleccionada === null) {
+    toast.info("Seleccione una fila para eliminar");
+    return;
+  }
+  if (filaSeleccionada >= pagosEditable.length) {
+    toast.warning("No se puede eliminar la fila de totales");
+    return;
+  }
+
+  // Captura el ID si existe
+  const pagoEliminado = pagosEditable[filaSeleccionada];
+  if (pagoEliminado?._id) {
+    setPagosEliminados((prev) => [...prev, pagoEliminado._id]);
+  }
+
+  // Elimina la fila del estado
+  setPagosEditable((prev) => prev.filter((_, i) => i !== filaSeleccionada));
+  setFilaSeleccionada(null);
+};
+
   useEffect(() => {
     if (isOpen && clienteId) {
       const cargarPagos = async () => {
@@ -49,7 +69,6 @@ const PagosModal = ({ isOpen, onClose, clienteId }) => {
                       intereses: interesInicial, // Se asigna el interés correcto
                       total: 0,
                       atrasos: 0,
-                      descuento: 0,
                     },
                   ]
             );
@@ -88,7 +107,6 @@ const PagosModal = ({ isOpen, onClose, clienteId }) => {
     { data: "intereses", type: "numeric", title: "Intereses" },
     { data: "total", type: "numeric", title: "Total", readOnly: true },
     { data: "atrasos", type: "numeric", title: "Atrasos" },
-    { data: "descuento", type: "numeric", title: "Descuento" },
   ];
 
   const calcularTotales = () => {
@@ -131,13 +149,9 @@ const PagosModal = ({ isOpen, onClose, clienteId }) => {
           capital: prevPagos.length ? prevPagos[prevPagos.length - 1].capital : valorPrestamo, 
           avance: 0,
           abono: 0,
-          intereses: prevPagos.length ? 
-          (interes / 100) * prevPagos[prevPagos.length - 1].capital 
-          : (interes / 100) * valorPrestamo,
-      
+          intereses: interes,
           total: 0,
           atrasos: 0,
-          descuento: 0,
         },
       ];
     });
@@ -146,54 +160,74 @@ const PagosModal = ({ isOpen, onClose, clienteId }) => {
   
   
 
-  const handleSave = async () => {
-    setGuardando(true); // Mostrar spinner
-    // <Alerta alerta={alerta}/>;
-    setAlerta({
-      msg: "Guardando cambios...",
-      error: false,
-    }); // Limpiar alerta antes de guardar
+const handleSave = async () => {
+  setGuardando(true);
+  setAlerta({
+    msg: "Guardando cambios...",
+    error: false,
+  });
 
+  try {
+    console.log("Guardando cambios con los siguientes pagos:", pagosEditable);
 
-    try {
-      console.log("Guardando cambios con los siguientes pagos:", pagosEditable);
-  
-      if (!clienteId) {
-        console.error("Error: clienteId no está definido.");
-        toast.error("No se puede guardar sin un cliente.");
-        return;
-      }
-  
-      const pagosConFecha = pagosEditable.map((pago) => {
-        if (!pago.quincena) {
-          pago.quincena = new Date().toISOString().split("T")[0];
-        }
-        return pago;
-      });
-  
-      for (const pago of pagosConFecha) {
-        console.log("Guardando pago:", pago);
-        pago.total =
-          (Number(pago.capital) || 0) +
-          (Number(pago.avance) || 0) +
-          (Number(pago.abono) || 0) +
-          (Number(pago.intereses) || 0);
-  
-        if (pago._id) {
-          await editarPago(clienteId, pago._id, pago);
-        } else {
-          await crearPago(pago);
-        }
-      }
-  
-      toast.success("Pagos guardados correctamente");
-      onClose();
-    } catch (error) {
-      toast.error("Error al guardar los pagos");
-      console.error("Error al guardar pagos:", error);
-    } finally {
-      setGuardando(false); // Ocultar spinner
+    if (!clienteId) {
+      console.error("Error: clienteId no está definido.");
+      toast.error("No se puede guardar sin un cliente.");
+      return;
     }
+
+    // 🔴 Primero eliminamos los pagos eliminados visualmente
+ for (const pagoId of pagosEliminados) {
+  try {
+    await eliminarPago(clienteId, pagoId);
+    console.log("Pago eliminado:", pagoId);
+  } catch (error) {
+    console.error("Error al eliminar el pago:", pagoId, error);
+  }
+}
+
+
+    const pagosConFecha = pagosEditable.map((pago) => {
+      if (!pago.quincena) {
+        pago.quincena = new Date().toISOString().split("T")[0];
+      }
+      pago.total =
+        (Number(pago.capital) || 0) +
+        (Number(pago.avance) || 0) +
+        (Number(pago.abono) || 0) +
+        (Number(pago.intereses) || 0);
+      return pago;
+    });
+
+    for (const pago of pagosConFecha) {
+      if (pago._id) {
+        await editarPago(clienteId, pago._id, pago);
+      } else {
+        await crearPago(pago);
+      }
+    }
+
+    toast.success("Pagos guardados correctamente");
+    setPagosEliminados([]); // 🔄 Limpiar los eliminados
+    onClose();
+  } catch (error) {
+    toast.error("Error al guardar los pagos");
+    console.error("Error al guardar pagos:", error);
+  } finally {
+    setGuardando(false);
+  }
+};
+
+    const handleAfterSelectionEnd = (row, col, row2, col2) => {
+    if (typeof row === "number" && row < pagosEditable.length) {
+      setFilaSeleccionada(row);
+    } else {
+      setFilaSeleccionada(null);
+    }
+  };
+    const beforeColumnRemove = (index) => {
+    removeColumn(index);
+    return false; // evitar que HT elimine automáticamente
   };
   
   
@@ -252,7 +286,7 @@ const PagosModal = ({ isOpen, onClose, clienteId }) => {
           <div style={{ maxHeight: "400px", overflowY: "auto", padding: "5px", borderRadius: "5px" }}>
             <HotTable
               data={[...pagosEditable, ...calcularTotales()]}
-              colHeaders={columnas.map((col) => col.title)}
+              colHeaders={columnas.map((c) => c.title)}
               columns={columnas}
               rowHeaders={true}
               licenseKey="non-commercial-and-evaluation"
@@ -260,33 +294,21 @@ const PagosModal = ({ isOpen, onClose, clienteId }) => {
                 if (Array.isArray(changes) && source !== 'loadData') {
                   setPagosEditable((prevPagos) => {
                     const updatedPagos = [...prevPagos];
-  
                     changes.forEach(([row, prop, oldVal, newVal]) => {
                       if (row >= updatedPagos.length) return;
-  
                       const pago = { ...updatedPagos[row] };
-  
                       if (prop === "avance") {
-                        const avance = Number(newVal) || 0;
-                        const oldAvance = Number(oldVal) || 0;
-                        pago.capital += avance - oldAvance;
+                        pago.capital += (Number(newVal) || 0) - (Number(oldVal) || 0);
                       }
-  
                       if (prop === "abono") {
-                        const abono = Number(newVal) || 0;
-                        const oldAbono = Number(oldVal) || 0;
-                        pago.capital -= abono - oldAbono;
+                        pago.capital -= (Number(newVal) || 0) - (Number(oldVal) || 0);
                       }
-  
                       if (prop === "capital") {
-                        const capital = Number(newVal) || 0;
-                        pago.intereses = (interes / 100) * capital;
+                        pago.intereses = (interes / 100) * (Number(newVal) || 0);
                       }
-  
                       pago[prop] = newVal;
                       updatedPagos[row] = pago;
                     });
-  
                     return updatedPagos;
                   });
                 }
@@ -303,12 +325,27 @@ const PagosModal = ({ isOpen, onClose, clienteId }) => {
               manualRowMove={true}
               manualColumnRemove={true}
               manualRowRemove={true}
-              afterRemoveRow={(index, amount) => handleRowRemove(index, amount)}
-              beforeColumnRemove={(index) => removeColumn(index)}
+              afterRemoveRow={(index, amount) => {
+                // No queremos que Handsontable elimine filas, sino manual
+                setPagosEditable((prev) => {
+                  const copy = [...prev];
+                  copy.splice(index, amount);
+                  return copy;
+                });
+              }}
+              beforeColumnRemove={beforeColumnRemove}
+              afterSelectionEnd={handleAfterSelectionEnd}
+              cells={(row) => {
+                if (row === pagosEditable.length) return { readOnly: true, className: "htDimmed" };
+                return {};
+              }}
             />
           </div>
-          <Button variant="primary" onClick={addNewRow} className="mt-3">
-            Agregar Fila
+           <Button variant="primary" onClick={addNewRow} className="mt-3 me-2">
+            ➕ Agregar Fila
+          </Button>
+          <Button variant="danger" onClick={handleDeleteRow} className="mt-3">
+            🗑️ Eliminar Fila Seleccionada
           </Button>
         </Modal.Body>
         <Modal.Footer>

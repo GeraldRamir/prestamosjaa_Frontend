@@ -409,7 +409,7 @@ const ListadoClientes = () => {
                             </tr>
                           </thead>
                             <tbody>
-                              {clientesFiltrados.map(cliente => (
+                              {clientesFiltrados.map((cliente) => (
                                 <Clientebody
                                   key={cliente._id}
                                   cliente={cliente}

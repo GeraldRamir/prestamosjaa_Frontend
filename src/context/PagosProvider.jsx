@@ -165,7 +165,7 @@ export const PagosProvider = ({ children }) => {
     };
 
     // Eliminar un pago del array de pagos del cliente
-    const eliminarPago = async (pagoId) => {
+    const eliminarPago = async (clienteId,pagoId) => {
         try {
             const token = localStorage.getItem('token');
             const config = {
@@ -175,7 +175,7 @@ export const PagosProvider = ({ children }) => {
                 }
             };
 
-            await clienteAxios.delete(`/pagos/${pagoId}`, config);
+            await clienteAxios.delete(`/pagos/${clienteId}/${pagoId}`, config);
             console.log("Pago eliminado:", pagoId);
 
             // Eliminar el pago del estado local
