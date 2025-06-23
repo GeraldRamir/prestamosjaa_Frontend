@@ -193,8 +193,8 @@ const ModalEditarCliente = ({ cliente, cerrarModal }) => {
                                 <input
                                     type="number"
                                     className="form-control rounded-3 border-light shadow-sm"
-                                    name="NumeroCuenta"
-                                    value={formData.ClaveTarjeta}
+                                    name="Clavedetarjeta"
+                                    value={formData.Clavedetarjeta}
                                     onChange={handleChange}
                                     required
                                     style={{ paddingLeft: "25px" }}

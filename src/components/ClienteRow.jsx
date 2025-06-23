@@ -13,7 +13,7 @@ const ClienteRow = ({ cliente, onEdit, onDelete, onVerPagos }) => {
         <span className="badge bg-success">RD$ {cliente.ValorPrestamo}</span>
       </td>
       <td>{cliente.NumeroCuenta}</td>
-      <td>{cliente.ClaveTarjeta}</td>
+      <td>{cliente.Clavedetarjeta}</td>
       <td>{cliente.Interes}</td>
       <td>
         <span

@@ -39,7 +39,7 @@ const Sidebar = () => {
   const [nombre, setNombre] = useState('');
   const [copiaCedula, setcopiaCedula] = useState('');
   const [Empresa, setEmpresa] = useState('');
-  const [ClaveTarjeta, setClaveTarjeta] = useState('');
+  const [Clavedetarjeta, setClavedetarjeta] = useState('');
   const [FechaIngreso, setFechaIngreso] = useState('');
   const [FechaPago, setFechaPago] = useState('');
   const [telefono, setTelefono] = useState('');
@@ -143,7 +143,7 @@ const handleInstallClick = async () => {
     e.preventDefault();
     const form = e.target;
   
-    if ([nombre, copiaCedula, Empresa, ClaveTarjeta, NumeroCuenta, ValorPrestamo, Interes, FechaIngreso, FechaPago, telefono, bank].some(campo => campo === '' || campo === null || campo === undefined)) {
+    if ([nombre, copiaCedula, Empresa, Clavedetarjeta, NumeroCuenta, ValorPrestamo, Interes, FechaIngreso, FechaPago, telefono, bank].some(campo => campo === '' || campo === null || campo === undefined)) {
 
       e.stopPropagation();
       setAlerta({
@@ -165,7 +165,7 @@ const handleInstallClick = async () => {
       nombre,
       copiaCedula: Number(copiaCedula),
       Empresa,
-      ClaveTarjeta: Number(ClaveTarjeta),
+      Clavedetarjeta: Number(Clavedetarjeta),
       NumeroCuenta: Number(NumeroCuenta),
       ValorPrestamo: Number(ValorPrestamo),
       Interes: (Number(Interes) / 100) * Number(ValorPrestamo),
@@ -686,8 +686,8 @@ const handleInstallClick = async () => {
             style={{ borderRadius: "7px" }}
             id="validationCustom03"
             required
-            value={ClaveTarjeta}
-            onChange={(e) => setClaveTarjeta(e.target.value)}
+            value={Clavedetarjeta}
+            onChange={(e) => setClavedetarjeta(e.target.value)}
           />
           <span
             className="input-group-text"

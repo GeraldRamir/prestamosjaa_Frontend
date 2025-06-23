@@ -77,24 +77,26 @@ const Consolidados = () => {
           } else {
             // Verificar los pagos
             console.log(`Pagos recibidos para ${cliente.nombre}:`, pagosCliente);
-            datos.push([
-              cliente.Empresa,
-              cliente.nombre,
-              cliente.ClaveTarjeta,
-              cliente.ValorPrestamo,
-              pagosCliente.totales.capital ?? 0,
-              pagosCliente.totales.avance ?? 0,
-              pagosCliente.totales.abono ?? 0,
-              pagosCliente.totales.intereses ?? 0,
-              pagosCliente.totales.atrasos ?? 0
-            ]);
+datos.push([
+  cliente.Empresa,
+  cliente.nombre,
+  cliente.Clavetarjeta ?? "",
+  cliente.ValorPrestamo ?? 0,
+  pagosCliente.totales.capital ?? 0,
+  pagosCliente.totales.avance ?? 0,
+  pagosCliente.totales.abono ?? 0,
+  pagosCliente.totales.intereses ?? 0,
+  pagosCliente.totales.atrasos ?? 0,
+  pagosCliente.totales.descuento ?? 0   // ✅ Asegúrate de que sea "descuento", no "descuent"
+]);
+
           }
         } catch (error) {
           console.error(`Error al obtener pagos para el cliente ${cliente.nombre}:`, error);
           datos.push([
             cliente.Empresa,
             cliente.nombre,
-            cliente.claveTarjeta,
+            cliente.Clavetarjeta,
             0, 0, 0, 0, 0, 0
           ]);
         }
@@ -110,39 +112,52 @@ const Consolidados = () => {
   
   
 
-  useEffect(() => {
-    if (clientesFiltrados.length > 0 && tableRef.current) {
-      generarDatosTabla().then((data) => {
-        if (data && data.length > 0) {
-          const hot = new Handsontable(tableRef.current, {
-            data,
-            colHeaders: [
-              "Empresa", 
-              "Nombre del Cliente", 
-              "Clave de tarjeta",
-              "Valor del préstamo",
-              "Capital", 
-              "Avance ", 
-              "Abono ", 
-              "Intereses quincenales", 
-              "Atrasos"
-            ],
-            rowHeaders: true,
-            filters: true,
-            dropdownMenu: true,
-            contextMenu: true,
-            licenseKey: 'non-commercial-and-evaluation'
-          });
-  
-          // Limpiar la tabla cuando el componente se desmonte
-          return () => hot.destroy();
+useEffect(() => {
+  let hotInstance;
+
+  if (clientesFiltrados.length > 0 && tableRef.current) {
+    generarDatosTabla().then((data) => {
+      if (data && data.length > 0) {
+        if (tableRef.current.firstChild) {
+          tableRef.current.innerHTML = ""; // 🔁 Limpiar DOM para evitar instancias duplicadas
         }
-      }).catch((error) => {
-        console.error("Error al generar la tabla:", error);
-      });
+
+        hotInstance = new Handsontable(tableRef.current, {
+          data,
+          colHeaders: [
+            "Empresa", 
+            "Nombre del Cliente", 
+            "Clave de tarjeta",
+            "Valor del préstamo",
+            "Capital", 
+            "Avance", 
+            "Abono", 
+            "Intereses quincenales", 
+            "Atrasos",
+            "Descuento" // ✅ Nueva columna
+          ],
+          rowHeaders: true,
+          filters: true,
+          dropdownMenu: true,
+          contextMenu: true,
+          width: '100%',
+          height: 'auto',
+          stretchH: 'all',
+          licenseKey: 'non-commercial-and-evaluation'
+        });
+      }
+    }).catch((error) => {
+      console.error("Error al generar la tabla:", error);
+    });
+  }
+
+  return () => {
+    if (hotInstance) {
+      hotInstance.destroy(); // 🔴 Destruye instancia anterior al desmontar
     }
-  }, [clientesFiltrados]);  // Se ejecuta solo cuando los clientes filtrados cambian
-  
+  };
+}, [clientesFiltrados]);
+
   
 
   const handlePrintHandsontable = async () => {
@@ -157,10 +172,11 @@ const Consolidados = () => {
   
       let tableHTML = "<table border='1' style='border-collapse: collapse; width: 100%;'>";
       tableHTML += "<thead><tr>";
-      const colHeaders = [
-        "Empresa", "Nombre del Cliente", "Clave de tarjeta", "Valor del préstamo",
-        "Capital", "Avance", "Abono", "Intereses quincenales", "Atrasos"
-      ];
+const colHeaders = [
+  "Empresa", "Nombre del Cliente", "Clave de tarjeta", "Valor del préstamo",
+  "Capital", "Avance", "Abono", "Intereses quincenales", "Atrasos", "Descuento" // ← Aquí
+];
+
   
       colHeaders.forEach(header => {
         tableHTML += `<th style='padding: 8px; text-align: left; background-color: #f2f2f2;'>${header}</th>`;
@@ -328,8 +344,10 @@ const Consolidados = () => {
                         <option key={index} value={empresa}>{empresa}</option>
                       ))}
                     </select>
+<div style={{ overflowX: "auto", maxWidth: "100%" }}>
+  <div ref={tableRef}></div>
+</div>
 
-                    <div ref={tableRef}></div> {/* Contenedor para Handsontable */}
                   </div>
                 </div>
               </div>
