@@ -8,6 +8,7 @@ import "simplebar/dist/simplebar.css"; // Asegúrate de importar los estilos de 
 import useAuth from "../hooks/useAuth";
 import Alerta from "./Alerta";
 import useClientes from "../hooks/useClientes";
+import SimpleBar from 'simplebar-react';
 
 
 const Header = () => {

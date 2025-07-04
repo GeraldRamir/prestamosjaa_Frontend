@@ -1,5 +1,5 @@
 import React from 'react'
-import SimpleBar from "simplebar";
+import SimpleBar from 'simplebar-react';
 import "simplebar/dist/simplebar.css"; // Asegúrate de importar los estilos de simplebar
 import useAuth from "../hooks/useAuth";
 import Alerta from "./Alerta";

@@ -6,7 +6,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min";
 import feather from 'feather-icons';
 import SimpleBar from "simplebar";
-import "simplebar/dist/simplebar.css"; 
+// import "simplebar/dist/simplebar.css"; 
 import useAuth from "../hooks/useAuth";
 import useClientes from "../hooks/useClientes";
 import { Link } from "react-router-dom";
