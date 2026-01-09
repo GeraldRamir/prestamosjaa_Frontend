@@ -1,0 +1,85 @@
+/* src/index.css o src/App.css */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap');
+
+body {
+  font-family: 'Inter', sans-serif;
+}
+/* Estilos del sidebar */
+.sidebar {
+    position: fixed; /* Fijar el sidebar en la pantalla */
+    top: 0;
+    left: 0;
+    width: 250px; /* Ajusta el ancho según tus necesidades */
+    z-index: 1000; /* Asegúrate de que esté por encima del contenido */
+  }
+  
+
+  
+  /* Estilo del botón hamburguesa */
+  .hamburger {
+    font-size: 24px;
+    color: white;
+  }
+  
+
+  /* Cambiar el color de fondo del calendario */
+  .fc {
+    background-color: rgb(176, 254, 206); /* Fondo general */
+  }
+  
+  /* Cambiar el color de los días del mes */
+  .fc-daygrid-day {
+    background-color: #ffffff; /* Fondo blanco para cada día */
+    color: #000000; /* Color de texto de los días */
+    border-radius: 8px;
+    border: 1px solid #ddd;
+  }
+  
+  /* Resaltar los días seleccionados */
+  .fc-daygrid-day.fc-day-selected {
+    background-color: #113e6d; /* Azul para el día seleccionado */
+    color: rgb(0, 0, 0);
+  }
+  
+  /* Cambiar el color de los eventos */
+  .fc-event {
+    background-color: #d8c14a; /* Verde para eventos */
+    color: white;
+    border-radius: 4px;
+  }
+  
+  /* Cambiar el color de los eventos cuando están en hover */
+  .fc-event:hover {
+    background-color: #218838; /* Verde más oscuro */
+  }
+  
+  /* Personalización de la barra de herramientas */
+  .fc-toolbar {
+    background-color: rgb(176, 254, 206); /* Azul */
+    color: rgb(0, 0, 0);
+    padding: 10px;
+  }
+  
+  /* Personalización de los botones de navegación */
+  .fc-button {
+    background-color: #28a745;
+    color: white;
+    border: none;
+  }
+  
+  .fc-button:hover {
+    background-color: #218838;
+  }
+  
+  /* Estilo para el encabezado del calendario */
+  .fc-header-toolbar {
+    font-family: 'Arial', sans-serif;
+    font-weight: bold;
+  }
+  
+  /* Modificar la fuente */
+  .fc-daygrid-day-number {
+    font-family: 'Courier New', Courier, monospace;
+    font-weight: bold;
+    font-size: 14px;
+  }

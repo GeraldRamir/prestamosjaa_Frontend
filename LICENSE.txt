@@ -1,0 +1,38 @@
+=> SOFTWARE LICENSE AGREEMENT FOR PRIVATE LOAN MANAGEMENT SYSTEM
+
+All rights for this software are reserved by Gerald Luciano Ramírez.  
+This system is developed exclusively for the use of a single loan provider. Unauthorized access, duplication, or distribution is strictly prohibited.
+
+When you use or install this software, you agree to the following terms and conditions.
+
+=> YOU ARE ALLOWED
+
+    1. You are allowed to use the system for your personal and internal business purposes.
+    
+    2. You are allowed to customize or modify the system only for your own usage.
+    
+    3. You are allowed to install and run the system on one or multiple devices, as long as all usage remains under your direct control.
+    
+    4. You are allowed to make backups of the software for recovery purposes.
+
+=> YOU ARE NOT ALLOWED
+
+    1. You are not allowed to sell, rent, lease, sublicense, or distribute this software to any third party.
+    
+    2. You are not allowed to publish, upload, or share any part of this software on websites, marketplaces, or code repositories.
+    
+    3. You are not allowed to remove or alter any ownership notices or digital signatures included in the software.
+    
+    4. You are not allowed to use this software in any unlawful or unauthorized manner.
+
+Violation of any of these terms will result in immediate termination of the license, and may lead to legal action.
+
+=> CONTACT INFORMATION
+
+If you have questions or require special licensing permissions, please contact:
+
+Gerald Luciano Ramírez  
+Email: lucianormirezgerald@gmail.com  
+Phone: +1 (809) 981-0798
+
+All rights reserved © 2025
