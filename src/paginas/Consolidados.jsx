@@ -15,6 +15,7 @@ import PagosContext from "../context/PagosProvider";
 import Handsontable from 'handsontable';
 import 'handsontable/dist/handsontable.full.css';  // Importación de los estilos de Handsontable
 import imagenRegistro from '../assets/logoPrestamos-wBackground-removebg-preview.png';
+import clienteAxios from "../config/axios";
 
 const Consolidados = () => {
   const { clientes } = useClientes();
@@ -61,48 +62,83 @@ const Consolidados = () => {
   const generarDatosTabla = async () => {
     try {
       const datos = [];
+      const token = localStorage.getItem('token');
+      
+      if (!token) {
+        console.error("No hay token disponible");
+        return datos;
+      }
+
+      const config = {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        }
+      };
   
       for (const cliente of clientesFiltrados) {
         try {
-          // Llamar a obtenerPagos para cada cliente
-          const pagosCliente = await obtenerPagos(cliente._id);
+          // Obtener pagos directamente desde la API para asegurar que tenemos los datos
+          const { data: pagosCliente } = await clienteAxios.get(`pagos/${cliente._id}`, config);
   
-          if (!pagosCliente || !pagosCliente.totales) {
+          if (!pagosCliente || !pagosCliente.pagos || !Array.isArray(pagosCliente.pagos)) {
             console.warn(`No se encontraron pagos para el cliente ${cliente.nombre}`);
             datos.push([
-              cliente.Empresa,
-              cliente.nombre,
+              cliente.Empresa || "",
+              cliente.nombre || "",
+              cliente.Clavedetarjeta ?? "",
+              cliente.ValorPrestamo ?? 0,
               0, 0, 0, 0, 0, 0
-            ]); // Valores predeterminados si no se encontraron pagos
-          } else {
-            // Verificar los pagos
-            console.log(`Pagos recibidos para ${cliente.nombre}:`, pagosCliente);
-            
-            // Para el capital, tomar el valor de la última fila (antes de la fila de totales)
-            const ultimoCapital = pagosCliente.pagos && pagosCliente.pagos.length > 0
-              ? (Number(pagosCliente.pagos[pagosCliente.pagos.length - 1].capital) || 0)
-              : 0;
-            
-datos.push([
-  cliente.Empresa,
-  cliente.nombre,
-  cliente.Clavedetarjeta ?? "",
-  cliente.ValorPrestamo ?? 0,
-  ultimoCapital,
-  pagosCliente.totales.avance ?? 0,
-  pagosCliente.totales.abono ?? 0,
-  pagosCliente.totales.intereses ?? 0,
-  pagosCliente.totales.atrasos ?? 0,
-  pagosCliente.totales.descuento ?? 0   // ✅ Asegúrate de que sea "descuento", no "descuent"
-]);
-
+            ]);
+            continue;
           }
+
+          // Calcular totales si no vienen en la respuesta
+          let totales = pagosCliente.totales;
+          if (!totales && pagosCliente.pagos.length > 0) {
+            totales = {
+              capital: 0,
+              avance: 0,
+              abono: 0,
+              intereses: 0,
+              atrasos: 0,
+              descuento: 0
+            };
+            
+            pagosCliente.pagos.forEach(pago => {
+              totales.avance += Number(pago.avance) || 0;
+              totales.abono += Number(pago.abono) || 0;
+              totales.intereses += Number(pago.intereses) || 0;
+              totales.atrasos += Number(pago.atrasos) || 0;
+              totales.descuento += Number(pago.descuento) || 0;
+            });
+          }
+          
+          // Para el capital, tomar el valor de la última fila (antes de la fila de totales)
+          const ultimoCapital = pagosCliente.pagos.length > 0
+            ? (Number(pagosCliente.pagos[pagosCliente.pagos.length - 1].capital) || 0)
+            : (cliente.ValorPrestamo || 0);
+          
+          datos.push([
+            cliente.Empresa || "",
+            cliente.nombre || "",
+            cliente.Clavedetarjeta ?? "",
+            cliente.ValorPrestamo ?? 0,
+            ultimoCapital,
+            totales?.avance ?? 0,
+            totales?.abono ?? 0,
+            totales?.intereses ?? 0,
+            totales?.atrasos ?? 0,
+            totales?.descuento ?? 0
+          ]);
+
         } catch (error) {
           console.error(`Error al obtener pagos para el cliente ${cliente.nombre}:`, error);
           datos.push([
-            cliente.Empresa,
-            cliente.nombre,
-            cliente.Clavetarjeta,
+            cliente.Empresa || "",
+            cliente.nombre || "",
+            cliente.Clavedetarjeta ?? "",
+            cliente.ValorPrestamo ?? 0,
             0, 0, 0, 0, 0, 0
           ]);
         }
@@ -191,8 +227,20 @@ const colHeaders = [
   
       data.forEach(row => {
         tableHTML += "<tr>";
-        row.forEach(cell => {
-          tableHTML += `<td style='padding: 8px; text-align: left;'>${cell !== undefined ? cell : ''}</td>`;
+        row.forEach((cell, index) => {
+          // Formatear números con separadores de miles para columnas numéricas (índices 3-9)
+          let formattedCell = cell;
+          if (index >= 3 && index <= 9 && typeof cell === 'number') {
+            formattedCell = cell.toLocaleString('es-DO', { 
+              minimumFractionDigits: 2, 
+              maximumFractionDigits: 2 
+            });
+          } else if (cell !== undefined && cell !== null) {
+            formattedCell = cell;
+          } else {
+            formattedCell = '';
+          }
+          tableHTML += `<td style='padding: 8px; text-align: ${index >= 3 ? 'right' : 'left'};'>${formattedCell}</td>`;
         });
         tableHTML += "</tr>";
       });
