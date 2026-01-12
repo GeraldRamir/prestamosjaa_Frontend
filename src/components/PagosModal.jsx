@@ -110,7 +110,6 @@ const handleDeleteRow = () => {
   ];
 
   const calcularTotales = () => {
-    let totalCapital = 0;
     let totalAvance = 0;
     let totalAbono = 0;
     let totalIntereses = 0;
@@ -118,7 +117,6 @@ const handleDeleteRow = () => {
     let totalAtrasos = 0;
 
     pagosEditable.forEach((pago) => {
-      totalCapital += Number(pago.capital) || 0;
       totalAvance += Number(pago.avance) || 0;
       totalAbono += Number(pago.abono) || 0;
       totalIntereses += Number(pago.intereses) || 0;
@@ -126,10 +124,15 @@ const handleDeleteRow = () => {
       totalAtrasos += Number(pago.atrasos) || 0;
     });
 
+    // Para el capital, tomar el valor de la última fila (antes de la fila de totales)
+    const ultimoCapital = pagosEditable.length > 0 
+      ? Number(pagosEditable[pagosEditable.length - 1].capital) || 0
+      : 0;
+
     return [
       {
         quincena: "Totales",  // Etiqueta para la fila de totales
-        capital: totalCapital,
+        capital: ultimoCapital,
         avance: totalAvance,
         abono: totalAbono,
         intereses: totalIntereses,

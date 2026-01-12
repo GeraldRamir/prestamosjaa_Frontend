@@ -40,7 +40,7 @@ const Login = () => {
       
     } catch (error) {
       setAlerta({
-        msg: error.response.data.msg,
+        msg: error.response?.data?.msg || error.message || 'Error al iniciar sesión. Por favor, intente de nuevo.',
         error:true
       })
 
@@ -72,7 +72,7 @@ const Login = () => {
                 {/* Formulario a la derecha */}
                 <div className="col-md-6 d-flex flex-column justify-content-center p-5">
                   <h3 className="text-center fw-bold mb-4" style={{ fontSize: '2rem', color: '#339966' }}>Iniciar Sesión</h3>
-                  <Alerta alerta={alerta} />
+                  <Alerta alerta={alerta} setAlerta={setAlerta} />
 
                   <form onSubmit={handleSubmit}>
                     <div className="mb-4">

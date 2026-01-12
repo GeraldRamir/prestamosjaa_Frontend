@@ -77,12 +77,18 @@ const Consolidados = () => {
           } else {
             // Verificar los pagos
             console.log(`Pagos recibidos para ${cliente.nombre}:`, pagosCliente);
+            
+            // Para el capital, tomar el valor de la última fila (antes de la fila de totales)
+            const ultimoCapital = pagosCliente.pagos && pagosCliente.pagos.length > 0
+              ? (Number(pagosCliente.pagos[pagosCliente.pagos.length - 1].capital) || 0)
+              : 0;
+            
 datos.push([
   cliente.Empresa,
   cliente.nombre,
   cliente.Clavedetarjeta ?? "",
   cliente.ValorPrestamo ?? 0,
-  pagosCliente.totales.capital ?? 0,
+  ultimoCapital,
   pagosCliente.totales.avance ?? 0,
   pagosCliente.totales.abono ?? 0,
   pagosCliente.totales.intereses ?? 0,

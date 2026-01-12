@@ -4,7 +4,40 @@ import feather from 'feather-icons';
 
 const ModalEditarCliente = ({ cliente, cerrarModal }) => {
     const { editarCliente, obtenerClientes } = useClientes();
-    const [formData, setFormData] = useState(cliente);
+    
+    // Función para formatear fecha
+    const formatearFecha = (fecha) => {
+        if (!fecha) return '';
+        if (typeof fecha === 'string') {
+            // Si contiene 'T' (formato ISO), tomar solo la parte de la fecha
+            if (fecha.includes('T')) {
+                return fecha.split('T')[0];
+            }
+            // Si contiene espacio, tomar solo la parte de la fecha
+            if (fecha.includes(' ')) {
+                return fecha.split(' ')[0];
+            }
+            // Si ya está en formato YYYY-MM-DD, devolverlo tal cual
+            return fecha;
+        }
+        return '';
+    };
+    
+    const [formData, setFormData] = useState({
+        ...cliente,
+        // Formatear fechas para que funcionen con input type="date"
+        FechaIngreso: formatearFecha(cliente.FechaIngreso),
+        FechaPago: formatearFecha(cliente.FechaPago)
+    });
+    
+    // Actualizar formData cuando cambie el cliente
+    useEffect(() => {
+        setFormData({
+            ...cliente,
+            FechaIngreso: formatearFecha(cliente.FechaIngreso),
+            FechaPago: formatearFecha(cliente.FechaPago)
+        });
+    }, [cliente]);
     
     console.log(formData.nombreUbicacion)
     const handleChange = (e) => {
@@ -21,10 +54,15 @@ const ModalEditarCliente = ({ cliente, cerrarModal }) => {
 
       const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log("Datos a guardar:", formData); // 🔍
-        await editarCliente(formData);
-        await obtenerClientes(); // 👈 vuelve a cargar todos los clientes
-        cerrarModal();
+        try {
+          console.log("Datos a guardar:", formData); // 🔍
+          await editarCliente(formData);
+          await obtenerClientes(); // 👈 vuelve a cargar todos los clientes
+        } catch (error) {
+          console.error("Error al editar cliente:", error);
+        } finally {
+          cerrarModal(); // Siempre cerrar el modal, incluso si hay errores
+        }
     };
 
     // const FechaPagoModificada = formData.FechaPago ? formData.FechaPago.slice(0, 10) : '';
@@ -104,6 +142,21 @@ const ModalEditarCliente = ({ cliente, cerrarModal }) => {
                                     className="form-control rounded-3 border-light shadow-sm"
                                     name="telefono"
                                     value={formData.telefono}
+                                    onChange={handleChange}
+                                    required
+                                    style={{ paddingLeft: "25px" }}
+                                />
+                            </div>
+                        </div>
+                        <div className="mb-3">
+                            <label className="form-label text-muted">Cédula</label>
+                            <div className="d-flex align-items-center">
+                               <i data-feather="credit-card" className="me-2"   style={{ color: "#ff6f00", marginRight: "10px" }}></i>
+                                <input
+                                    type="number"
+                                    className="form-control rounded-3 border-light shadow-sm"
+                                    name="copiaCedula"
+                                    value={formData.copiaCedula || ''}
                                     onChange={handleChange}
                                     required
                                     style={{ paddingLeft: "25px" }}

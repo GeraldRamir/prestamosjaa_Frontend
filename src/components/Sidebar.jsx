@@ -58,7 +58,7 @@ const Sidebar = () => {
   const [empresasActivas, setEmpresasActivas] = useState(0);
   const [totalPrestamos, setTotalPrestamos] = useState(0);
   const [montoTotal, setMontoTotal] = useState(0);
-  const [crecimientoAnual, setCrecimientoAnual] = useState(0);
+  const [crecimientoMensual, setCrecimientoMensual] = useState(0);
   const [nuevosClientes, setNuevosClientes] = useState(0);
   const [eventDetails, setEventDetails] = useState(null);
   
@@ -119,8 +119,43 @@ const handleInstallClick = async () => {
       setEmpresasActivas(new Set(clientes.filter(c => c.activo).map(c => c.empresa)).size);
       setTotalPrestamos(clientes.reduce((acc, c) => acc + (c.prestamos || 0), 0));
       setMontoTotal(clientes.reduce((acc, c) => acc + (c.montoPrestamos || 0), 0));
-      setCrecimientoAnual(12); // Valor estático, se puede calcular dinámicamente
-      setNuevosClientes(40); // Valor estático, se puede calcular dinámicamente
+      
+      // Calcular crecimiento mensual real
+      const ahora = new Date();
+      const mesActual = ahora.getMonth();
+      const añoActual = ahora.getFullYear();
+      
+      // Mes anterior
+      const mesAnterior = mesActual === 0 ? 11 : mesActual - 1;
+      const añoAnterior = mesActual === 0 ? añoActual - 1 : añoActual;
+      
+      // Filtrar clientes del mes actual
+      const clientesMesActual = clientes.filter(cliente => {
+        if (!cliente.FechaIngreso) return false;
+        const fechaIngreso = new Date(cliente.FechaIngreso);
+        return fechaIngreso.getMonth() === mesActual && fechaIngreso.getFullYear() === añoActual;
+      });
+      
+      // Filtrar clientes del mes anterior
+      const clientesMesAnterior = clientes.filter(cliente => {
+        if (!cliente.FechaIngreso) return false;
+        const fechaIngreso = new Date(cliente.FechaIngreso);
+        return fechaIngreso.getMonth() === mesAnterior && fechaIngreso.getFullYear() === añoAnterior;
+      });
+      
+      const cantidadMesActual = clientesMesActual.length;
+      const cantidadMesAnterior = clientesMesAnterior.length;
+      
+      // Calcular porcentaje de crecimiento
+      let crecimiento = 0;
+      if (cantidadMesAnterior > 0) {
+        crecimiento = ((cantidadMesActual - cantidadMesAnterior) / cantidadMesAnterior) * 100;
+      } else if (cantidadMesActual > 0) {
+        crecimiento = 100; // Si no había clientes el mes anterior pero hay este mes, es 100% de crecimiento
+      }
+      
+      setCrecimientoMensual(Math.round(crecimiento * 100) / 100); // Redondear a 2 decimales
+      setNuevosClientes(cantidadMesActual);
     }
   }, [clientes]);
 
@@ -874,7 +909,7 @@ const handleInstallClick = async () => {
           <div className="card-body">
             <div className="row align-items-center">
               <div className="col mt-0">
-                <h5 className="card-title">Crecimiento Anual</h5>
+                <h5 className="card-title">Crecimiento Mensual</h5>
               </div>
               <div className="col-auto">
                 <div className="stat text-info">
@@ -882,10 +917,10 @@ const handleInstallClick = async () => {
                 </div>
               </div>
             </div>
-            <h1 className="mt-1 mb-3 text-success">{crecimientoAnual}%</h1>
+            <h1 className="mt-1 mb-3 text-success">{crecimientoMensual}%</h1>
             <div className="mb-0">
-              <span className="text-info">Aumento en clientes:</span>
-              <span className="text-muted"> +{nuevosClientes} este año</span>
+              <span className="text-info">Nuevos clientes:</span>
+              <span className="text-muted"> +{nuevosClientes} este mes</span>
             </div>
           </div>
         </div>
