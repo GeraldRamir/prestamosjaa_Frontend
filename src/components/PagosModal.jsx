@@ -7,7 +7,7 @@ import Handsontable from "handsontable";
 import "handsontable/dist/handsontable.full.css";
 import Alerta from "./Alerta";
 
-const PagosModal = ({ isOpen, onClose, clienteId }) => {
+const PagosModal = ({ isOpen, onClose, clienteId, valorPrestamoCliente }) => {
   const { obtenerPagos, crearPago, editarPago, eliminarPago } = useContext(PagosContext);
   const [pagosEditable, setPagosEditable] = useState([]);
   const [valorPrestamo, setValorPrestamo] = useState(0);
@@ -25,7 +25,7 @@ const handleDeleteRow = () => {
     return;
   }
   if (filaSeleccionada >= pagosEditable.length) {
-    toast.warning("No se puede eliminar la fila de totales");
+    toast.warning("Fila no válida");
     return;
   }
 
@@ -50,12 +50,10 @@ const handleDeleteRow = () => {
   
           if (pagosCliente && pagosCliente.pagos && Array.isArray(pagosCliente.pagos)) {
             const pagos = pagosCliente.pagos;
-            const valorInicial = pagos[0]?.capital || 0;
-            const interesInicial = pagos[0]?.intereses || 0; // Se obtiene correctamente
-  
-            setValorPrestamo(valorInicial);
-            setInteres(interesInicial); // Se guarda el interés inicial
-  
+            const valorPrestamoInicial = Number(valorPrestamoCliente) || pagos[0]?.capital || 0;
+            const interesInicial = pagos[0]?.intereses || 0;
+            setValorPrestamo(valorPrestamoInicial);
+            setInteres(interesInicial);
             setPagosEditable(
               pagos.length
                 ? pagos
@@ -63,10 +61,10 @@ const handleDeleteRow = () => {
                     {
                       clienteId,
                       quincena: "",
-                      capital: valorInicial,
+                      capital: valorPrestamoInicial,
                       avance: 0,
                       abono: 0,
-                      intereses: interesInicial, // Se asigna el interés correcto
+                      intereses: interesInicial,
                       total: 0,
                       atrasos: 0,
                     },
@@ -109,39 +107,6 @@ const handleDeleteRow = () => {
     { data: "atrasos", type: "numeric", title: "Atrasos" },
   ];
 
-  const calcularTotales = () => {
-    let totalAvance = 0;
-    let totalAbono = 0;
-    let totalIntereses = 0;
-    let totalTotal = 0;
-    let totalAtrasos = 0;
-
-    pagosEditable.forEach((pago) => {
-      totalAvance += Number(pago.avance) || 0;
-      totalAbono += Number(pago.abono) || 0;
-      totalIntereses += Number(pago.intereses) || 0;
-      totalTotal += Number(pago.total) || 0;
-      totalAtrasos += Number(pago.atrasos) || 0;
-    });
-
-    // Para el capital, tomar el valor de la última fila (antes de la fila de totales)
-    const ultimoCapital = pagosEditable.length > 0 
-      ? Number(pagosEditable[pagosEditable.length - 1].capital) || 0
-      : 0;
-
-    return [
-      {
-        quincena: "Totales",  // Etiqueta para la fila de totales
-        capital: ultimoCapital,
-        avance: totalAvance,
-        abono: totalAbono,
-        intereses: totalIntereses,
-        total: totalTotal,
-        atrasos: totalAtrasos,
-      },
-    ];
-  };
-
   const addNewRow = () => {
     setPagosEditable((prevPagos) => {
       return [
@@ -149,7 +114,7 @@ const handleDeleteRow = () => {
         {
           clienteId,
           quincena: new Date().toISOString().split("T")[0],
-          capital: prevPagos.length ? prevPagos[prevPagos.length - 1].capital : valorPrestamo, 
+          capital: valorPrestamo,
           avance: 0,
           abono: 0,
           intereses: interes,
@@ -288,7 +253,7 @@ const handleSave = async () => {
         <Modal.Body>
           <div style={{ maxHeight: "400px", overflowY: "auto", padding: "5px", borderRadius: "5px" }}>
             <HotTable
-              data={[...pagosEditable, ...calcularTotales()]}
+              data={pagosEditable}
               colHeaders={columnas.map((c) => c.title)}
               columns={columnas}
               rowHeaders={true}

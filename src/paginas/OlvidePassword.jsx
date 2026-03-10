@@ -2,7 +2,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { useState } from "react";
 import Alerta from "../components/Alerta";
 import { Link } from "react-router-dom";
-import clienteAxios from "../config/axios";
+import { olvidePassword } from "../lib/indexedDb";
 import useAuth from "../hooks/useAuth";
 
 const OlvidePassword = () => {
@@ -22,18 +22,13 @@ const OlvidePassword = () => {
       return
     }
     try {
-    const {data}= await clienteAxios.post('/prestamista/olvide-password',{email})
-    setAlerta({
-      msg: data.msg,
-      error: false
-    })
-      
+      const data = await olvidePassword(email);
+      setAlerta({ msg: data.msg, error: false });
     } catch (error) {
       setAlerta({
-        msg: error.response.data.msg,
-        error:true
-      })
-      
+        msg: error.response?.data?.msg || error.message || "Error al enviar",
+        error: true,
+      });
     }
   };
 

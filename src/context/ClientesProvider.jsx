@@ -1,6 +1,11 @@
 import { createContext, useState, useEffect } from "react";
-import clienteAxios from "../config/axios";
-import PagosContext from "./PagosProvider";  // Importamos el contexto de pagos
+import {
+    getClientes,
+    addCliente,
+    updateCliente,
+    deleteCliente as deleteClienteDb,
+    getPagosByClienteId,
+} from "../lib/indexedDb";
 
 const ClientesContext = createContext();
 
@@ -8,138 +13,84 @@ export const ClientesProvider = ({ children }) => {
     const [clientes, setClientes] = useState([]);
     const [clienteSeleccionado, setClienteSeleccionado] = useState(null);
     const [clientesFiltrados, setClientesFiltrados] = useState([]);
-    const [empresaSeleccionada, setEmpresaSeleccionada] = useState('');
+    const [empresaSeleccionada, setEmpresaSeleccionada] = useState("");
 
-    
     useEffect(() => {
-        if (empresaSeleccionada === '') {
-            setClientesFiltrados(clientes); // Si no hay filtro, muestra todos los clientes
+        if (empresaSeleccionada === "") {
+            setClientesFiltrados(clientes);
         } else {
-            const filtrados = clientes.filter(cliente => cliente.empresa === empresaSeleccionada);
-            setClientesFiltrados(filtrados); // Filtra según la empresa seleccionada
+            const filtrados = clientes.filter(
+                (cliente) => (cliente.empresa || cliente.Empresa) === empresaSeleccionada
+            );
+            setClientesFiltrados(filtrados);
         }
-    }, [empresaSeleccionada, clientes]); // Este useEffect se ejecuta cuando cambia empresaSeleccionada o clientes
-    
+    }, [empresaSeleccionada, clientes]);
 
-
-    // Obtención de clientes al cargar el componente
-// Obtención de clientes al cargar el componente
-    // Obtención de clientes al cargar el componente
-    useEffect(() => {
-        const obtenerClientes = async () => {
-            try {
-                const token = localStorage.getItem('token');
-                if (!token) return;
-                const config = {
-                    headers: {
-                        "Content-Type": "application/json",
-                        Authorization: `Bearer ${token}`
-                    }
-                };
-                const { data } = await clienteAxios('/clientes', config);
-                setClientes(data); // Actualiza el estado de clientes
-            } catch (error) {
-                console.log(error);
-            }
-        };
-
-        obtenerClientes();
-    }, []); // Este useEffect solo se ejecuta una vez cuando el componente se monta
-    
-    // Función para guardar un nuevo cliente
-  // Función para guardar un nuevo cliente
-  const guardarCliente = async (cliente) => {
+    const obtenerClientes = async () => {
         try {
-
-            console.log("Cliente a guardar:", cliente); // Verifica el cliente que se va a guardar
-            
-            const token = localStorage.getItem('token');
-            const config = {
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`
-                }
-            };
-            const { data } = await clienteAxios.post('/clientes', cliente, config);
-            setClientes(prevClientes => [...prevClientes, data]);
-
-            console.log("Cliente guardado:", data);
-
-            // Luego de guardar el cliente, obtenemos los pagos
-            if (data._id) {
-                obtenerPagos(data._id);
-            }
-
-        } catch (error) {
-            console.error("Error al guardar el cliente:", error);
-        }
-    };
-
-
-    // Función para obtener los pagos de un cliente
-    const obtenerPagos = async (clienteId) => {
-        try {
-            const token = localStorage.getItem('token');
-            if (!token || !clienteId) return;  // Verifica que clienteId esté disponible
-            const config = {
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`
-                }
-            };
-            const { data } = await clienteAxios(`/pagos/${clienteId}`, config);
-            console.log("Pagos obtenidos para el cliente:", data);
-            // Aquí podrías actualizar el estado de los pagos si es necesario
+            const token = localStorage.getItem("token");
+            if (!token) return;
+            const data = await getClientes();
+            setClientes(data || []);
         } catch (error) {
             console.log(error);
         }
     };
 
-    // Función para eliminar un cliente
+    useEffect(() => {
+        obtenerClientes();
+    }, []);
+
+    const guardarCliente = async (cliente) => {
+        try {
+            const data = await addCliente(cliente);
+            setClientes((prevClientes) => [...prevClientes, data]);
+            if (data._id) {
+                obtenerPagos(data._id);
+            }
+        } catch (error) {
+            console.error("Error al guardar el cliente:", error);
+        }
+    };
+
+    const obtenerPagos = async (clienteId) => {
+        try {
+            if (!clienteId) return;
+            await getPagosByClienteId(clienteId);
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
     const eliminarCliente = async (id) => {
         try {
-            const token = localStorage.getItem('token');
-            const config = {
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`
-                }
-            };
-            await clienteAxios.delete(`/clientes/${id}`, config);
-            setClientes(prevClientes => prevClientes.filter(cliente => cliente._id !== id));
+            await deleteClienteDb(id);
+            setClientes((prevClientes) => prevClientes.filter((cliente) => cliente._id !== id));
         } catch (error) {
             console.error("Error al eliminar el cliente:", error);
         }
     };
 
-    // Función para editar un cliente
     const editarCliente = async (cliente) => {
         try {
-            const token = localStorage.getItem('token');
-            const config = {
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`
-                }
-            };
-            const { data } = await clienteAxios.put(`/clientes/${cliente._id}`, cliente, config);
-            setClientes(clientes.map(c => c._id === data._id ? data : c));
+            const data = await updateCliente(cliente);
+            setClientes((prev) => prev.map((c) => (c._id === data._id ? data : c)));
         } catch (error) {
-            console.error("Error al actualizar cliente:", error.response?.data || error.message);
+            console.error("Error al actualizar cliente:", error?.message || error);
         }
     };
 
     return (
         <ClientesContext.Provider value={{
             clientes,
-            clientesFiltrados, // Añadido
-            // obtenerClientes,
+            clientesFiltrados,
+            obtenerClientes,
             guardarCliente,
             eliminarCliente,
             editarCliente,
             setClienteSeleccionado,
             clienteSeleccionado,
-            setEmpresaSeleccionada // Si quieres cambiar la empresa desde otros componentes
+            setEmpresaSeleccionada,
         }}>
             {children}
         </ClientesContext.Provider>

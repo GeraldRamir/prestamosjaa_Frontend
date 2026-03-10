@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
 import Alerta from "../components/Alerta";
-import clienteAxios from "../config/axios";
+import { loginPrestamista } from "../lib/indexedDb";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import imagenRegistro from '../assets/logoPrestamos-wBackground-removebg-preview.png';
 
@@ -32,17 +32,15 @@ const Login = () => {
     }
 
     try {
-      const {data}= await clienteAxios.post('/prestamista/login', {email, password})
-      localStorage.setItem('token', data.token)
-      console.log(data)
-      setAuth(data)
-      navigate('/admin')
-      
+      const data = await loginPrestamista(email, password);
+      localStorage.setItem("token", data.token);
+      setAuth(data);
+      navigate("/admin");
     } catch (error) {
       setAlerta({
-        msg: error.response?.data?.msg || error.message || 'Error al iniciar sesión. Por favor, intente de nuevo.',
-        error:true
-      })
+        msg: error.response?.data?.msg || error.message || "Error al iniciar sesión. Por favor, intente de nuevo.",
+        error: true,
+      });
 
       
     }  

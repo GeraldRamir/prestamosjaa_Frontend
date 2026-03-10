@@ -2,7 +2,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { useState, useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
 import Alerta from "../components/Alerta";
-import clienteAxios from "../config/axios";
+import { validarTokenOlvidePassword, nuevoPassword } from "../lib/indexedDb";
 
 const NuevoPassword = () => {
   const [password, setPassword] = useState("");
@@ -16,15 +16,11 @@ const NuevoPassword = () => {
   useEffect(() => {
     const compararToken = async () => {
       try {
-        await clienteAxios(`/prestamista/olvide-password/${token}`);
-        setAlerta({
-          msg: "Coloca tu nuevo password",
-          error: false,
-        });
+        await validarTokenOlvidePassword(token);
+        setAlerta({ msg: "Coloca tu nuevo password", error: false });
         setTokenValido(true);
       } catch (error) {
-        setAlerta({ msg: 'Hubo un error con el enlace', error: true });
-        console.log("Alerta: Error con el enlace"); // Verifica si se llega aquí
+        setAlerta({ msg: "Hubo un error con el enlace", error: true });
       }
     };
     compararToken();
@@ -52,17 +48,12 @@ const NuevoPassword = () => {
     }
 
     try {
-      const url = `/prestamista/olvide-password/${token}`;
-      const { data } = await clienteAxios.post(url, { password });
-
-      setAlerta({
-        msg: data.msg,
-        error: false,
-      });
-      setPasswordActualizado(true); // Cambiar el estado para mostrar el botón de inicio de sesión
+      const data = await nuevoPassword(token, password);
+      setAlerta({ msg: data.msg, error: false });
+      setPasswordActualizado(true);
     } catch (error) {
       setAlerta({
-        msg: error.response?.data.msg || "Hubo un error al actualizar la contraseña",
+        msg: error.response?.data?.msg || "Hubo un error al actualizar la contraseña",
         error: true,
       });
     }

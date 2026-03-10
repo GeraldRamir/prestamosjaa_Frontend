@@ -1,9 +1,8 @@
 import { Outlet } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
 import { Navigate } from "react-router-dom";
-import "bootstrap/dist/css/bootstrap.min.css"; // Asegúrate de importar Bootstrap
+import "bootstrap/dist/css/bootstrap.min.css";
 import Dashboard from "../paginas/Dashboard";
-import AlertaMantenimiento from "../components/AlertaMantenimiento";
 
 const RutaProtegida = () => {
   const { auth, cargando } = useAuth();
@@ -17,20 +16,7 @@ const RutaProtegida = () => {
       </div>
     );
 
-  return (
-    <>
-      {auth?._id ? (
-        <>
-          <AlertaMantenimiento />
-          <div style={{ paddingTop: '90px' }}>
-            <Outlet />
-          </div>
-        </>
-      ) : (
-        <Navigate to="/" />
-      )}
-    </>
-  );
+  return auth?._id ? <Outlet /> : <Navigate to="/" />;
 };
 
 export default RutaProtegida;

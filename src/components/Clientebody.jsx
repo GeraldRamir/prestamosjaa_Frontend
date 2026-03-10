@@ -36,6 +36,7 @@ const ClienteBody = ({ cliente, onEdit, onDelete }) => {
             isOpen={modalOpen}
             onClose={handleCloseModal}
             clienteId={cliente._id}
+            valorPrestamoCliente={cliente.ValorPrestamo}
             pagos={pagosCliente}
             editarPago={editarPago}
             eliminarPago={eliminarPago}

@@ -2,7 +2,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import Alerta from "../components/Alerta";
-import clienteAxios from "../config/axios";
+import { registrarPrestamista } from "../lib/indexedDb";
 import imagenRegistro from '../assets/logoPrestamos-wBackground-removebg-preview.png';
 
 
@@ -33,11 +33,10 @@ const Registrar = () => {
         }
     
         try {
-            
-            await clienteAxios.post('/prestamista', {nombre,email,password});
-            setAlerta({ msg: 'Usuario creado correctamente, revisa tu email', error: false });
+            await registrarPrestamista(nombre, email, password);
+            setAlerta({ msg: "Usuario creado correctamente, revisa tu email", error: false });
         } catch (error) {
-           setAlerta({ msg: error.response.data.msg, error: true });
+            setAlerta({ msg: error.response?.data?.msg || error.message || "Error al registrar", error: true });
         }
     
 

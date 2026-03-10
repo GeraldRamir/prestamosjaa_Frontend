@@ -1,5 +1,6 @@
 import axios from "axios";
 
+// Opcional: la app usa IndexedDB para todos los datos. Este cliente solo es útil si vuelves a conectar un backend.
 // Helper function to normalize the base URL
 const getBaseURL = () => {
   if (import.meta.env.VITE_BACKEND_URL) {

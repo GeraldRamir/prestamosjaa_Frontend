@@ -1,7 +1,5 @@
 import { useState, useEffect, createContext } from "react";
-import clienteAxios from "../config/axios";
-// import 'index.css'; // o './App.css'
-
+import { getPrestamistaPerfil } from "../lib/indexedDb";
 
 const AuthContext = createContext();
 
@@ -17,17 +15,11 @@ const AuthProvider = ({ children }) => {
         setCargando(false);
         return;
       }
-      const config = {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      };
       try {
-        const { data } = await clienteAxios("/prestamista/perfil", config);
-        setAuth(data);
+        const data = await getPrestamistaPerfil();
+        setAuth(data || {});
       } catch (error) {
-        console.log(error.response?.data?.msg);
+        console.log(error?.message);
         setAuth({});
       }
       setCargando(false);

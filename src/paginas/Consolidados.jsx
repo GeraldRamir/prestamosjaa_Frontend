@@ -15,7 +15,7 @@ import PagosContext from "../context/PagosProvider";
 import Handsontable from 'handsontable';
 import 'handsontable/dist/handsontable.full.css';  // Importación de los estilos de Handsontable
 import imagenRegistro from '../assets/logoPrestamos-wBackground-removebg-preview.png';
-import clienteAxios from "../config/axios";
+import { getPagosByClienteId } from "../lib/indexedDb";
 
 const Consolidados = () => {
   const { clientes } = useClientes();
@@ -62,27 +62,10 @@ const Consolidados = () => {
   const generarDatosTabla = async () => {
     try {
       const datos = [];
-      const token = localStorage.getItem('token');
-      
-      if (!token) {
-        console.error("No hay token disponible");
-        return datos;
-      }
-
-      const config = {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`
-        }
-      };
-  
       for (const cliente of clientesFiltrados) {
         try {
-          // Obtener pagos directamente desde la API para asegurar que tenemos los datos
-          const { data: pagosCliente } = await clienteAxios.get(`pagos/${cliente._id}`, config);
-  
-          if (!pagosCliente || !pagosCliente.pagos || !Array.isArray(pagosCliente.pagos)) {
-            console.warn(`No se encontraron pagos para el cliente ${cliente.nombre}`);
+          const pagosCliente = await getPagosByClienteId(cliente._id);
+          if (!pagosCliente?.pagos || !Array.isArray(pagosCliente.pagos) || pagosCliente.pagos.length === 0) {
             datos.push([
               cliente.Empresa || "",
               cliente.nombre || "",
@@ -92,46 +75,20 @@ const Consolidados = () => {
             ]);
             continue;
           }
-
-          // Calcular totales si no vienen en la respuesta
-          let totales = pagosCliente.totales;
-          if (!totales && pagosCliente.pagos.length > 0) {
-            totales = {
-              capital: 0,
-              avance: 0,
-              abono: 0,
-              intereses: 0,
-              atrasos: 0,
-              descuento: 0
-            };
-            
-            pagosCliente.pagos.forEach(pago => {
-              totales.avance += Number(pago.avance) || 0;
-              totales.abono += Number(pago.abono) || 0;
-              totales.intereses += Number(pago.intereses) || 0;
-              totales.atrasos += Number(pago.atrasos) || 0;
-              totales.descuento += Number(pago.descuento) || 0;
-            });
-          }
-          
-          // Para el capital, tomar el valor de la última fila (antes de la fila de totales)
-          const ultimoCapital = pagosCliente.pagos.length > 0
-            ? (Number(pagosCliente.pagos[pagosCliente.pagos.length - 1].capital) || 0)
-            : (cliente.ValorPrestamo || 0);
-          
+          let totales = pagosCliente.totales || {};
+          const capital = Number(cliente.ValorPrestamo) || 0;
           datos.push([
             cliente.Empresa || "",
             cliente.nombre || "",
             cliente.Clavedetarjeta ?? "",
             cliente.ValorPrestamo ?? 0,
-            ultimoCapital,
-            totales?.avance ?? 0,
-            totales?.abono ?? 0,
-            totales?.intereses ?? 0,
-            totales?.atrasos ?? 0,
-            totales?.descuento ?? 0
+            capital,
+            totales.avance ?? 0,
+            totales.abono ?? 0,
+            totales.intereses ?? 0,
+            totales.atrasos ?? 0,
+            totales.descuento ?? 0
           ]);
-
         } catch (error) {
           console.error(`Error al obtener pagos para el cliente ${cliente.nombre}:`, error);
           datos.push([
@@ -143,8 +100,6 @@ const Consolidados = () => {
           ]);
         }
       }
-  
-      console.log("Datos generados para la tabla:", datos);
       return datos;
     } catch (error) {
       console.error("Error al generar los datos de la tabla:", error);

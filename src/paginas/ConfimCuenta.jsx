@@ -1,6 +1,6 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useState, useEffect } from "react";
-import clienteAxios from "../config/axios";
+import { confirmarCuenta } from "../lib/indexedDb";
 import { useParams, Link } from "react-router-dom";
 import Alerta from "../components/Alerta";
 
@@ -13,22 +13,17 @@ const ConfirmarCuenta = () => {
     const [alerta, setAlerta] = useState({ msg: "", error: false });
 
     useEffect(() => {
-        const confirmarCuenta = async () => {
+        const confirmar = async () => {
             try {
-                const url = `/prestamista/confirmar/${token}`;
-                console.log(url);
-                const { data } = await clienteAxios.get(url);
-                console.log(data);
+                await confirmarCuenta(token);
                 setCargando(false);
                 setCuentaConfirmada(true);
-                // setAlerta({ msg: data.msg, error: false });
             } catch (error) {
-                console.log(error);
                 setCargando(false);
                 setAlerta({ msg: "Hubo un problema al confirmar tu cuenta. Intenta nuevamente.", error: true });
             }
         };
-        confirmarCuenta();
+        confirmar();
     }, [token]);
 
     return (
