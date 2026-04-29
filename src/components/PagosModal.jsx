@@ -6,19 +6,18 @@ import { HotTable } from "@handsontable/react";
 import Handsontable from "handsontable";
 import "handsontable/dist/handsontable.full.css";
 import Alerta from "./Alerta";
+import { aplicarCalculoAFila } from "../lib/calculoPrestamo";
 
-const PagosModal = ({ isOpen, onClose, clienteId, valorPrestamoCliente }) => {
+const PagosModal = ({ isOpen, onClose, clienteId, valorPrestamoCliente, tasaInteres }) => {
   const { obtenerPagos, crearPago, editarPago, eliminarPago } = useContext(PagosContext);
   const [pagosEditable, setPagosEditable] = useState([]);
   const [valorPrestamo, setValorPrestamo] = useState(0);
-  const [interes, setInteres] = useState(0);
+  const tasa = Number(tasaInteres) || 0;
   const [guardando, setGuardando] = useState(false);
     const [alerta, setAlerta] = useState({});
       const [filaSeleccionada, setFilaSeleccionada] = useState(null);
       const [pagosEliminados, setPagosEliminados] = useState([]);
 
-
-  // const [Interes, setInteres] = useState(0);
 const handleDeleteRow = () => {
   if (filaSeleccionada === null) {
     toast.info("Seleccione una fila para eliminar");
@@ -50,24 +49,26 @@ const handleDeleteRow = () => {
   
           if (pagosCliente && pagosCliente.pagos && Array.isArray(pagosCliente.pagos)) {
             const pagos = pagosCliente.pagos;
+            const tasaAct = Number(tasaInteres) || 0;
             const valorPrestamoInicial = Number(valorPrestamoCliente) || pagos[0]?.capital || 0;
-            const interesInicial = pagos[0]?.intereses || 0;
             setValorPrestamo(valorPrestamoInicial);
-            setInteres(interesInicial);
             setPagosEditable(
               pagos.length
-                ? pagos
+                ? pagos.map((p) => aplicarCalculoAFila(p, tasaAct))
                 : [
-                    {
-                      clienteId,
-                      quincena: "",
-                      capital: valorPrestamoInicial,
-                      avance: 0,
-                      abono: 0,
-                      intereses: interesInicial,
-                      total: 0,
-                      atrasos: 0,
-                    },
+                    aplicarCalculoAFila(
+                      {
+                        clienteId,
+                        quincena: "",
+                        capital: valorPrestamoInicial,
+                        avance: 0,
+                        abono: 0,
+                        intereses: 0,
+                        total: 0,
+                        atrasos: 0,
+                      },
+                      tasaAct
+                    ),
                   ]
             );
           } else {
@@ -82,7 +83,7 @@ const handleDeleteRow = () => {
   
       cargarPagos();
     }
-  }, [isOpen, clienteId])
+  }, [isOpen, clienteId, tasaInteres, valorPrestamoCliente])
 
   const columnas = [
     {
@@ -102,26 +103,24 @@ const handleDeleteRow = () => {
     { data: "capital", type: "numeric", title: "Capital" },
     { data: "avance", type: "numeric", title: "Avance" },
     { data: "abono", type: "numeric", title: "Abono" },
-    { data: "intereses", type: "numeric", title: "Intereses" },
+    { data: "intereses", type: "numeric", title: "Intereses", readOnly: true },
     { data: "total", type: "numeric", title: "Total", readOnly: true },
     { data: "atrasos", type: "numeric", title: "Atrasos" },
   ];
 
   const addNewRow = () => {
     setPagosEditable((prevPagos) => {
-      return [
-        ...prevPagos,
-        {
-          clienteId,
-          quincena: new Date().toISOString().split("T")[0],
-          capital: valorPrestamo,
-          avance: 0,
-          abono: 0,
-          intereses: interes,
-          total: 0,
-          atrasos: 0,
-        },
-      ];
+      const base = {
+        clienteId,
+        quincena: new Date().toISOString().split("T")[0],
+        capital: valorPrestamo,
+        avance: 0,
+        abono: 0,
+        intereses: 0,
+        total: 0,
+        atrasos: 0,
+      };
+      return [...prevPagos, aplicarCalculoAFila(base, tasa)];
     });
   };
   
@@ -156,15 +155,11 @@ const handleSave = async () => {
 
 
     const pagosConFecha = pagosEditable.map((pago) => {
-      if (!pago.quincena) {
-        pago.quincena = new Date().toISOString().split("T")[0];
+      const o = { ...pago };
+      if (!o.quincena) {
+        o.quincena = new Date().toISOString().split("T")[0];
       }
-      pago.total =
-        (Number(pago.capital) || 0) +
-        (Number(pago.avance) || 0) +
-        (Number(pago.abono) || 0) +
-        (Number(pago.intereses) || 0);
-      return pago;
+      return aplicarCalculoAFila(o, tasa);
     });
 
     for (const pago of pagosConFecha) {
@@ -264,18 +259,17 @@ const handleSave = async () => {
                     const updatedPagos = [...prevPagos];
                     changes.forEach(([row, prop, oldVal, newVal]) => {
                       if (row >= updatedPagos.length) return;
-                      const pago = { ...updatedPagos[row] };
+                      let pago = { ...updatedPagos[row] };
                       if (prop === "avance") {
-                        pago.capital += (Number(newVal) || 0) - (Number(oldVal) || 0);
+                        pago.capital = (Number(pago.capital) || 0) + (Number(newVal) || 0) - (Number(oldVal) || 0);
+                        pago.avance = newVal;
+                      } else if (prop === "abono") {
+                        pago.capital = (Number(pago.capital) || 0) - ((Number(newVal) || 0) - (Number(oldVal) || 0));
+                        pago.abono = newVal;
+                      } else {
+                        pago = { ...pago, [prop]: newVal };
                       }
-                      if (prop === "abono") {
-                        pago.capital -= (Number(newVal) || 0) - (Number(oldVal) || 0);
-                      }
-                      if (prop === "capital") {
-                        pago.intereses = (interes / 100) * (Number(newVal) || 0);
-                      }
-                      pago[prop] = newVal;
-                      updatedPagos[row] = pago;
+                      updatedPagos[row] = aplicarCalculoAFila(pago, tasa);
                     });
                     return updatedPagos;
                   });
