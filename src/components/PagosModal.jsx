@@ -13,6 +13,9 @@ const PagosModal = ({ isOpen, onClose, clienteId, valorPrestamoCliente, tasaInte
   const [pagosEditable, setPagosEditable] = useState([]);
   const [valorPrestamo, setValorPrestamo] = useState(0);
   const tasa = Number(tasaInteres) || 0;
+  /** Base para el cálculo del interés: monto del préstamo (no el saldo capital de la fila) */
+  const montoPrestamo =
+    Number(valorPrestamoCliente) || Number(valorPrestamo) || 0;
   const [guardando, setGuardando] = useState(false);
     const [alerta, setAlerta] = useState({});
       const [filaSeleccionada, setFilaSeleccionada] = useState(null);
@@ -52,9 +55,11 @@ const handleDeleteRow = () => {
             const tasaAct = Number(tasaInteres) || 0;
             const valorPrestamoInicial = Number(valorPrestamoCliente) || pagos[0]?.capital || 0;
             setValorPrestamo(valorPrestamoInicial);
+            const basePrestamo =
+              Number(valorPrestamoCliente) || valorPrestamoInicial || 0;
             setPagosEditable(
               pagos.length
-                ? pagos.map((p) => aplicarCalculoAFila(p, tasaAct))
+                ? pagos.map((p) => aplicarCalculoAFila(p, tasaAct, basePrestamo))
                 : [
                     aplicarCalculoAFila(
                       {
@@ -67,7 +72,8 @@ const handleDeleteRow = () => {
                         total: 0,
                         atrasos: 0,
                       },
-                      tasaAct
+                      tasaAct,
+                      basePrestamo
                     ),
                   ]
             );
@@ -120,7 +126,7 @@ const handleDeleteRow = () => {
         total: 0,
         atrasos: 0,
       };
-      return [...prevPagos, aplicarCalculoAFila(base, tasa)];
+      return [...prevPagos, aplicarCalculoAFila(base, tasa, montoPrestamo)];
     });
   };
   
@@ -159,7 +165,7 @@ const handleSave = async () => {
       if (!o.quincena) {
         o.quincena = new Date().toISOString().split("T")[0];
       }
-      return aplicarCalculoAFila(o, tasa);
+      return aplicarCalculoAFila(o, tasa, montoPrestamo);
     });
 
     for (const pago of pagosConFecha) {
@@ -269,7 +275,11 @@ const handleSave = async () => {
                       } else {
                         pago = { ...pago, [prop]: newVal };
                       }
-                      updatedPagos[row] = aplicarCalculoAFila(pago, tasa);
+                      updatedPagos[row] = aplicarCalculoAFila(
+                        pago,
+                        tasa,
+                        montoPrestamo
+                      );
                     });
                     return updatedPagos;
                   });
