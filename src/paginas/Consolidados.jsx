@@ -64,6 +64,7 @@ const Consolidados = () => {
       const datos = [];
       for (const cliente of clientesFiltrados) {
         try {
+          const valorPrestamoNum = Number(cliente.ValorPrestamo) || 0;
           const pagosCliente = await getPagosByClienteId(cliente._id);
           if (!pagosCliente?.pagos || !Array.isArray(pagosCliente.pagos) || pagosCliente.pagos.length === 0) {
             datos.push([
@@ -71,12 +72,15 @@ const Consolidados = () => {
               cliente.nombre || "",
               cliente.Clavedetarjeta ?? "",
               cliente.ValorPrestamo ?? 0,
-              0, 0, 0, 0, 0, 0
+              valorPrestamoNum,
+              0, 0, 0, 0, 0
             ]);
             continue;
           }
           let totales = pagosCliente.totales || {};
-          const capital = Number(cliente.ValorPrestamo) || 0;
+          // Capital del consolidado: primera fila de pagos si tiene valor; si sigue en 0/sin dato, igual al préstamo
+          const capital =
+            Number(pagosCliente.pagos[0]?.capital) || valorPrestamoNum;
           datos.push([
             cliente.Empresa || "",
             cliente.nombre || "",
@@ -91,12 +95,14 @@ const Consolidados = () => {
           ]);
         } catch (error) {
           console.error(`Error al obtener pagos para el cliente ${cliente.nombre}:`, error);
+          const vp = Number(cliente.ValorPrestamo) || 0;
           datos.push([
             cliente.Empresa || "",
             cliente.nombre || "",
             cliente.Clavedetarjeta ?? "",
             cliente.ValorPrestamo ?? 0,
-            0, 0, 0, 0, 0, 0
+            vp,
+            0, 0, 0, 0, 0
           ]);
         }
       }
