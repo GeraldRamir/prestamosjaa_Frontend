@@ -16,6 +16,24 @@ import Handsontable from 'handsontable';
 import 'handsontable/dist/handsontable.full.css';  // Importación de los estilos de Handsontable
 import imagenRegistro from '../assets/logoPrestamos-wBackground-removebg-preview.png';
 import { getPagosByClienteId } from "../lib/indexedDb";
+import { aplicarCalculoAFila } from "../lib/calculoPrestamo";
+
+/** Suma interés quincenal (misma fórmula que PagosModal) y atrasos por fila */
+function sumarInteresesYAtrasosConsolidado(pagos, tasaPct, valorPrestamo) {
+  if (!Array.isArray(pagos) || pagos.length === 0) {
+    return { intereses: 0, atrasos: 0 };
+  }
+  const tasa = Number(tasaPct) || 0;
+  const base = Number(valorPrestamo) || 0;
+  let intereses = 0;
+  let atrasos = 0;
+  for (const p of pagos) {
+    const fila = aplicarCalculoAFila(p, tasa, base);
+    intereses += Number(fila.intereses) || 0;
+    atrasos += Number(p.atrasos) || 0;
+  }
+  return { intereses, atrasos };
+}
 
 const Consolidados = () => {
   const { clientes } = useClientes();
@@ -73,7 +91,11 @@ const Consolidados = () => {
               cliente.Clavedetarjeta ?? "",
               cliente.ValorPrestamo ?? 0,
               valorPrestamoNum,
-              0, 0, 0, 0, 0
+              null,
+              null,
+              null,
+              null,
+              null
             ]);
             continue;
           }
@@ -81,6 +103,12 @@ const Consolidados = () => {
           // Capital del consolidado: primera fila de pagos si tiene valor; si sigue en 0/sin dato, igual al préstamo
           const capital =
             Number(pagosCliente.pagos[0]?.capital) || valorPrestamoNum;
+          const { intereses: interesesSum, atrasos: atrasosSum } =
+            sumarInteresesYAtrasosConsolidado(
+              pagosCliente.pagos,
+              cliente.Interes,
+              valorPrestamoNum
+            );
           datos.push([
             cliente.Empresa || "",
             cliente.nombre || "",
@@ -89,8 +117,8 @@ const Consolidados = () => {
             capital,
             totales.avance ?? 0,
             totales.abono ?? 0,
-            totales.intereses ?? 0,
-            totales.atrasos ?? 0,
+            interesesSum,
+            atrasosSum,
             totales.descuento ?? 0
           ]);
         } catch (error) {
@@ -102,7 +130,11 @@ const Consolidados = () => {
             cliente.Clavedetarjeta ?? "",
             cliente.ValorPrestamo ?? 0,
             vp,
-            0, 0, 0, 0, 0
+            null,
+            null,
+            null,
+            null,
+            null
           ]);
         }
       }
@@ -186,20 +218,37 @@ const colHeaders = [
       });
       tableHTML += "</tr></thead><tbody>";
   
+      const esCeldaNumericaVacia = (cell) =>
+        cell === null ||
+        cell === undefined ||
+        cell === "" ||
+        (typeof cell === "number" && !Number.isFinite(cell)) ||
+        (typeof cell === "number" && cell === 0);
+
       data.forEach(row => {
         tableHTML += "<tr>";
         row.forEach((cell, index) => {
-          // Formatear números con separadores de miles para columnas numéricas (índices 3-9)
           let formattedCell = cell;
-          if (index >= 3 && index <= 9 && typeof cell === 'number') {
-            formattedCell = cell.toLocaleString('es-DO', { 
-              minimumFractionDigits: 2, 
-              maximumFractionDigits: 2 
-            });
+          if (index >= 3 && index <= 9) {
+            // Movimientos (5–9): sin dato o cero → celda en blanco para rellenar a mano al imprimir
+            if (index >= 5 && esCeldaNumericaVacia(cell)) {
+              formattedCell = "";
+            } else if (index >= 3 && typeof cell === "number" && Number.isFinite(cell)) {
+              formattedCell = cell.toLocaleString("es-DO", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              });
+            } else if (index >= 3 && esCeldaNumericaVacia(cell)) {
+              formattedCell = "";
+            } else if (cell !== undefined && cell !== null) {
+              formattedCell = cell;
+            } else {
+              formattedCell = "";
+            }
           } else if (cell !== undefined && cell !== null) {
             formattedCell = cell;
           } else {
-            formattedCell = '';
+            formattedCell = "";
           }
           tableHTML += `<td style='padding: 8px; text-align: ${index >= 3 ? 'right' : 'left'};'>${formattedCell}</td>`;
         });
